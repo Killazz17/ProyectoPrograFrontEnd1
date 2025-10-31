@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Presentation.Views.AgregarMedicamento">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Presentation.BuscarPacienteView">
   <grid id="27dc6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="561" height="443"/>
+      <xy x="20" y="20" width="500" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="c7111" binding="AddPillMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="99d4" binding="SearchPatientMainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
@@ -16,32 +16,29 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="481e" binding="MainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="e19ee" binding="MainPanel" layout-manager="GridLayoutManager" row-count="3" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
-            <border type="none" title-justification="1" title-position="3">
-              <font/>
-              <title-color color="-3092263"/>
-            </border>
+            <border type="none"/>
             <children>
-              <component id="e7b81" class="javax.swing.JLabel" binding="FilterByLabel">
+              <component id="505d1" class="javax.swing.JLabel" binding="FilterByLabel">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Filtrar por:"/>
+                  <text value="Filtrar por: "/>
                 </properties>
               </component>
-              <component id="ae197" class="javax.swing.JComboBox" binding="FilterByComboBox">
+              <component id="eecfe" class="javax.swing.JComboBox" binding="FilterByComboBox">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
-              <component id="585e7" class="javax.swing.JTextField" binding="FilterByTextField">
+              <component id="4f1fd" class="javax.swing.JTextField" binding="FilterByTexField">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="150" height="-1"/>
@@ -49,41 +46,39 @@
                 </constraints>
                 <properties/>
               </component>
-              <scrollpane id="b9dd5" binding="PillScrollPanel">
+              <scrollpane id="1dd75" binding="SeacrhPatientScrollPanel">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <preferred-size width="453" height="190"/>
-                  </grid>
+                  <grid row="1" column="0" row-span="1" col-span="5" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="7a0e" class="javax.swing.JTable" binding="AddPillTable">
+                  <component id="8c420" class="javax.swing.JTable" binding="SearchPatientPanel">
                     <constraints/>
                     <properties/>
                   </component>
                 </children>
               </scrollpane>
-              <hspacer id="288b8">
+              <hspacer id="3c26d">
                 <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="1" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <component id="9c6ce" class="javax.swing.JButton" binding="OkButton">
-                <constraints>
-                  <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <icon value="icons/check-mark.png"/>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="b849" class="javax.swing.JButton" binding="CancelButton">
+              <component id="e455b" class="javax.swing.JButton" binding="CancelButton">
                 <constraints>
                   <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <icon value="icons/close.png"/>
+                  <text value=""/>
+                </properties>
+              </component>
+              <component id="be927" class="javax.swing.JButton" binding="OKButton" default-binding="true">
+                <constraints>
+                  <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <icon value="icons/check-mark.png"/>
                   <text value=""/>
                 </properties>
               </component>

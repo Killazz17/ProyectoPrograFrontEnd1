@@ -1,4 +1,4 @@
-package Presentation.Views;
+package Presentation;
 
 import javax.swing.*;
 
