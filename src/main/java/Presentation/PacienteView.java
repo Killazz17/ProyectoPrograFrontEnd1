@@ -1,8 +1,8 @@
-package Presentation.Views;
+package Presentation;
 
 import javax.swing.*;
 
-public class FarmaceutaView {
+public class PacienteView {
     private JPanel ContentPanel;
     private JPanel FormPanel;
     private JPanel FormGroupPanel;
@@ -12,6 +12,12 @@ public class FarmaceutaView {
     private JPanel NombrePanel;
     private JLabel NombreLabel;
     private JTextField NombreTextField;
+    private JPanel FechaNacimientoPanel;
+    private JLabel FechaNacimientoLabel;
+    private JTextField FechaNacimientoTextField;
+    private JPanel TelefonoPanel;
+    private JLabel TelefonoLabel;
+    private JTextField TelefonoTextField;
     private JPanel ButtonPanel;
     private JButton guardarButton;
     private JButton limpiarButton;
