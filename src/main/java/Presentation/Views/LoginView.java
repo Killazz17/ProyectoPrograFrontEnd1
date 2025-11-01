@@ -186,24 +186,17 @@ public class LoginView extends JFrame implements IObserver {
         setButtonsEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        SwingWorker<LoginResponseDto, Void> worker = new SwingWorker<>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
-            protected LoginResponseDto doInBackground() {
-                return controller.login(id, password);
+            protected Void doInBackground() {
+                controller.login(id, password);
+                return null;
             }
 
             @Override
             protected void done() {
-                try {
-                    get(); // La respuesta se manejará en el método update()
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(LoginView.this,
-                            "Error al procesar login: " + e.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                    setButtonsEnabled(true);
-                } finally {
-                    setCursor(Cursor.getDefaultCursor());
-                }
+                // La respuesta se manejará en el método update() a través del patrón observer
+                setCursor(Cursor.getDefaultCursor());
             }
         };
 
