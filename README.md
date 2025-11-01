@@ -125,10 +125,10 @@ La comunicación con el backend se realiza mediante sockets, enviando y recibien
 - Verifica que el backend esté ejecutándose
 - Confirma que host y puerto en app.properties sean correctos
 
-### Error: Missing image in LoginView
-- Si hay un error de NullPointerException relacionado con ImageIcon
-- Coloca la imagen requerida en `src/main/resources/images/logo.png`
-- O modifica LoginView para no usar imágenes
+### Nota sobre Iconos en la Interfaz
+- Las vistas utilizan botones con texto en lugar de iconos
+- Si desea agregar iconos personalizados, coloque los archivos PNG en `src/main/resources/icons/`
+- Los archivos de formulario (.form) pueden ser editados en IntelliJ IDEA para agregar referencias a iconos
 
 ## Desarrollo
 

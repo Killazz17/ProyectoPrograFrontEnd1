@@ -123,7 +123,6 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <icon value="icons/user.png"/>
                   <text value=""/>
                 </properties>
               </component>
@@ -149,8 +148,7 @@
                 <properties>
                   <background color="-1"/>
                   <foreground color="-1"/>
-                  <icon value="icons/delete.png"/>
-                  <text value=""/>
+                  <text value="Limpiar"/>
                 </properties>
               </component>
               <component id="368cf" class="javax.swing.JButton" binding="ChangePasswordButton">
@@ -160,9 +158,8 @@
                 <properties>
                   <background color="-1"/>
                   <hideActionText value="false"/>
-                  <icon value="icons/reset-password.png"/>
-                  <label value=""/>
-                  <text value=""/>
+                  <label value="Cambiar Contraseña"/>
+                  <text value="Cambiar Contraseña"/>
                 </properties>
               </component>
               <component id="4ace4" class="javax.swing.JButton" binding="LoginButton">
@@ -173,9 +170,8 @@
                   <background color="-1"/>
                   <foreground color="-1"/>
                   <hideActionText value="false"/>
-                  <icon value="icons/enter.png"/>
-                  <label value=""/>
-                  <text value=""/>
+                  <label value="Ingresar"/>
+                  <text value="Ingresar"/>
                 </properties>
               </component>
             </children>

@@ -160,7 +160,6 @@
                         </constraints>
                         <properties>
                           <background color="-1051649"/>
-                          <icon value="icons/diskette.png"/>
                           <text value=""/>
                         </properties>
                       </component>
@@ -170,7 +169,6 @@
                         </constraints>
                         <properties>
                           <background color="-3076"/>
-                          <icon value="icons/clean.png"/>
                           <text value=""/>
                         </properties>
                       </component>
@@ -182,7 +180,6 @@
                           <background color="-918273"/>
                           <horizontalAlignment value="0"/>
                           <horizontalTextPosition value="2"/>
-                          <icon value="icons/delete (1).png"/>
                           <inheritsPopupMenu value="false"/>
                           <text value=""/>
                           <verticalAlignment value="0"/>
@@ -244,7 +241,6 @@
                         <properties>
                           <background color="-393985"/>
                           <horizontalTextPosition value="2"/>
-                          <icon value="icons/search.png"/>
                           <text value="Buscar"/>
                         </properties>
                       </component>
@@ -255,7 +251,6 @@
                         <properties>
                           <background color="-1311489"/>
                           <horizontalTextPosition value="2"/>
-                          <icon value="icons/pdf.png"/>
                           <text value="Reporte"/>
                         </properties>
                       </component>
