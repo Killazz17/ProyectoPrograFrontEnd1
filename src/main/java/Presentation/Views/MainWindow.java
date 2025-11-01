@@ -2,6 +2,7 @@ package Presentation.Views;
 
 import Domain.Dtos.LoginResponseDto;
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Ventana principal del sistema hospitalario.
@@ -15,13 +16,35 @@ public class MainWindow extends JFrame {
 
     private final LoginResponseDto usuario;
 
-    // Constructor que recibe al usuario autenticado
     public MainWindow(LoginResponseDto usuario) {
         this.usuario = usuario;
 
+        createUIComponents();
         setupFrame();
         setupTabs();
         setupListeners();
+    }
+
+    private void createUIComponents() {
+        ContentPanel = new JPanel(new BorderLayout());
+
+        // Toolbar superior
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+
+        // Spacer
+        toolbar.add(Box.createHorizontalGlue());
+
+        // Botón de logout
+        LogoutButton = new JButton("Cerrar Sesión");
+        LogoutButton.setFocusPainted(false);
+        toolbar.add(LogoutButton);
+
+        ContentPanel.add(toolbar, BorderLayout.NORTH);
+
+        // Panel de pestañas
+        MainTabPanel = new JTabbedPane();
+        ContentPanel.add(MainTabPanel, BorderLayout.CENTER);
     }
 
     private void setupFrame() {
@@ -39,6 +62,7 @@ public class MainWindow extends JFrame {
 
         switch (rol.toUpperCase()) {
             case "ADMIN":
+            case "ADMINISTRADOR":
                 setupAdminTabs();
                 break;
             case "MEDICO":

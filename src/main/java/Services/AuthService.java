@@ -7,6 +7,10 @@ import Domain.Dtos.LoginResponseDto;
 
 public class AuthService extends BaseService {
 
+    public AuthService() {
+        super(); // Usa localhost:7070 por defecto
+    }
+
     public AuthService(String host, int port) {
         super(host, port);
     }
@@ -27,8 +31,15 @@ public class AuthService extends BaseService {
         // Si la respuesta general fue exitosa, intentamos convertir los datos a LoginResponseDto
         if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
             try {
-                return gson.fromJson(res.getData(), LoginResponseDto.class);
+                // El backend devuelve UserResponseDto, así que lo mapeamos a LoginResponseDto
+                com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
+
+                String nombre = jsonObject.get("nombre").getAsString();
+                String rol = jsonObject.get("rol").getAsString();
+
+                return new LoginResponseDto(true, nombre, rol, "Login exitoso");
             } catch (Exception e) {
+                System.err.println("[AuthService] Error al interpretar respuesta: " + e.getMessage());
                 return new LoginResponseDto(false, "", "", "Error al interpretar la respuesta del servidor");
             }
         }

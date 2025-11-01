@@ -3,6 +3,7 @@ package Presentation.Views;
 import Domain.Dtos.LoginResponseDto;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -29,14 +30,90 @@ public class LoginView extends JFrame {
     public LoginView() {
         this.controller = new Presentation.Controllers.AuthController();
 
+        createUIComponents(); // Crear componentes manualmente
         setupFrame();
         setupListeners();
+    }
+
+    /**
+     * Crear todos los componentes de la UI manualmente (sin GUI Designer)
+     */
+    private void createUIComponents() {
+        // Panel principal
+        ContentPanel = new JPanel(new GridBagLayout());
+        ContentPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Imagen de usuario (usando texto como placeholder)
+        ImagePanel = new JPanel();
+        ImageLabel = new JLabel("👤", SwingConstants.CENTER);
+        ImageLabel.setFont(new Font("Dialog", Font.PLAIN, 72));
+        ImagePanel.add(ImageLabel);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        ContentPanel.add(ImagePanel, gbc);
+
+        // Panel de formulario
+        FormPanel = new JPanel(new GridLayout(2, 1, 5, 10));
+
+        // ID
+        IDGroupPanel = new JPanel(new BorderLayout(10, 0));
+        IDLabel = new JLabel("ID:");
+        IDTextField = new JTextField(15);
+        IDGroupPanel.add(IDLabel, BorderLayout.WEST);
+        IDGroupPanel.add(IDTextField, BorderLayout.CENTER);
+
+        // Password
+        PasswordGroupPanel = new JPanel(new BorderLayout(10, 0));
+        PasswordLabel = new JLabel("Password:");
+        PasswordTextFiel = new JPasswordField(15);
+        PasswordGroupPanel.add(PasswordLabel, BorderLayout.WEST);
+        PasswordGroupPanel.add(PasswordTextFiel, BorderLayout.CENTER);
+
+        FormPanel.add(IDGroupPanel);
+        FormPanel.add(PasswordGroupPanel);
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        ContentPanel.add(FormPanel, gbc);
+
+        // Panel de botones
+        ButtonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
+
+        LoginButton = new JButton("Entrar");
+        LoginButton.setBackground(new Color(76, 175, 80));
+        LoginButton.setForeground(Color.WHITE);
+        LoginButton.setFocusPainted(false);
+
+        ClearButton = new JButton("Limpiar");
+        ClearButton.setBackground(new Color(158, 158, 158));
+        ClearButton.setForeground(Color.WHITE);
+        ClearButton.setFocusPainted(false);
+
+        ChangePasswordButton = new JButton("Cambiar Clave");
+        ChangePasswordButton.setBackground(new Color(33, 150, 243));
+        ChangePasswordButton.setForeground(Color.WHITE);
+        ChangePasswordButton.setEnabled(false);
+        ChangePasswordButton.setFocusPainted(false);
+
+        ButtonPanel.add(LoginButton);
+        ButtonPanel.add(ClearButton);
+        ButtonPanel.add(ChangePasswordButton);
+
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        ContentPanel.add(ButtonPanel, gbc);
     }
 
     private void setupFrame() {
         setContentPane(ContentPanel);
         setTitle("Sistema Hospital - Login");
-        setSize(500, 400);
+        setSize(450, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -45,7 +122,6 @@ public class LoginView extends JFrame {
     private void setupListeners() {
         LoginButton.addActionListener(e -> performLogin());
         ClearButton.addActionListener(e -> clearFields());
-        ChangePasswordButton.setEnabled(false);
 
         PasswordTextFiel.addKeyListener(new KeyAdapter() {
             @Override
@@ -95,6 +171,7 @@ public class LoginView extends JFrame {
         }
 
         setButtonsEnabled(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         SwingWorker<LoginResponseDto, Void> worker = new SwingWorker<>() {
             @Override
@@ -112,6 +189,8 @@ public class LoginView extends JFrame {
                             "Error al procesar login: " + e.getMessage(),
                             "Error", JOptionPane.ERROR_MESSAGE);
                     setButtonsEnabled(true);
+                } finally {
+                    setCursor(Cursor.getDefaultCursor());
                 }
             }
         };
@@ -119,21 +198,25 @@ public class LoginView extends JFrame {
         worker.execute();
     }
 
-    /**
-     * Maneja la respuesta del login después de recibirla del AuthController.
-     * Si es exitoso, abre la ventana principal; si no, muestra el mensaje de error.
-     */
     private void handleLoginResponse(LoginResponseDto response) {
         if (response.isSuccess()) {
             this.responseData = response;
+
+            // Mostrar mensaje de bienvenida
+            String mensaje = String.format(
+                    "¡Bienvenido!\n\nUsuario: %s\nRol: %s",
+                    response.getNombre(),
+                    response.getRol()
+            );
+
             JOptionPane.showMessageDialog(
                     this,
-                    "Bienvenido " + response.getNombre() + " (" + response.getRol() + ")",
+                    mensaje,
                     "Login exitoso",
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            // Abre la ventana principal con el usuario autenticado
+            // Abrir ventana principal
             SwingUtilities.invokeLater(() -> {
                 MainWindow mainWindow = new MainWindow(response);
                 mainWindow.setVisible(true);
@@ -151,14 +234,6 @@ public class LoginView extends JFrame {
             clearFields();
             IDTextField.requestFocus();
         }
-    }
-
-    private void openMainWindow() {
-        SwingUtilities.invokeLater(() -> {
-            MainWindow mainWindow = new MainWindow(responseData);
-            mainWindow.setVisible(true);
-            dispose();
-        });
     }
 
     private void clearFields() {

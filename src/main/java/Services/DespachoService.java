@@ -8,16 +8,18 @@ import java.util.List;
 
 public class DespachoService extends BaseService {
 
+    public DespachoService() {
+        super();
+    }
+
     public DespachoService(String host, int port) {
         super(host, port);
     }
 
     public List<DespachoDto> getAll() {
-        RequestDto req = new RequestDto("Despacho", "getAll", null, null);
-        ResponseDto res = sendRequest(req);
-        if (res != null && res.isSuccess()) {
-            return gson.fromJson(res.getData(), new TypeToken<List<DespachoDto>>() {}.getType());
-        }
+        // El backend no tiene un controlador de Despacho aún
+        // Este servicio necesita ser implementado en el backend
+        System.out.println("[DespachoService] ADVERTENCIA: Backend no tiene controlador Despacho");
         return List.of();
     }
 
@@ -31,8 +33,12 @@ public class DespachoService extends BaseService {
     public DespachoDto getById(int id) {
         RequestDto req = new RequestDto("Despacho", "getById", gson.toJson(id), null);
         ResponseDto res = sendRequest(req);
-        if (res != null && res.isSuccess()) {
-            return gson.fromJson(res.getData(), DespachoDto.class);
+        if (res != null && res.isSuccess() && res.getData() != null) {
+            try {
+                return gson.fromJson(res.getData(), DespachoDto.class);
+            } catch (Exception e) {
+                System.err.println("[DespachoService] Error al parsear: " + e.getMessage());
+            }
         }
         return null;
     }
