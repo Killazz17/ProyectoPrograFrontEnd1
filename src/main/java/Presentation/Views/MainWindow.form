@@ -41,8 +41,7 @@
               <component id="85bbe" class="javax.swing.JButton" binding="LogoutButton">
                 <constraints/>
                 <properties>
-                  <icon value="icons/logout.png"/>
-                  <text value=""/>
+                    <text value="Cerrar Sesión"/>
                 </properties>
               </component>
             </children>

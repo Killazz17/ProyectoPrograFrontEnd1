@@ -41,7 +41,7 @@ public class FarmaceutaController extends Observable {
         SwingWorker<FarmaceutaDto, Void> worker = new SwingWorker<>() {
             @Override
             protected FarmaceutaDto doInBackground() throws Exception {
-                return service.create(dto.getId(), dto.getNombre());
+                return service.create(dto);
             }
 
             @Override

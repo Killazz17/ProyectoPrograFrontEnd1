@@ -8,6 +8,10 @@ import java.util.List;
 
 public class FarmaceutaService extends BaseService {
 
+    public FarmaceutaService() {
+        super();
+    }
+
     public FarmaceutaService(String host, int port) {
         super(host, port);
     }
