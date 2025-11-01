@@ -1,13 +1,15 @@
 package Presentation.Views;
 
 import Domain.Dtos.LoginResponseDto;
+import Presentation.IObserver;
+import Utilities.EventType;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class LoginView extends JFrame {
+public class LoginView extends JFrame implements IObserver {
     private JPanel ContentPanel;
     private JPanel LoginPanel;
     private JPanel FormPanel;
@@ -25,14 +27,19 @@ public class LoginView extends JFrame {
     private JButton LoginButton;
 
     private LoginResponseDto responseData;
-    private final Presentation.Controllers.AuthController controller;
+    private Presentation.Controllers.LoginController controller;
 
     public LoginView() {
-        this.controller = new Presentation.Controllers.AuthController();
-
         createUIComponents(); // Crear componentes manualmente
         setupFrame();
         setupListeners();
+    }
+    
+    /**
+     * Establece el controlador para esta vista
+     */
+    public void setController(Presentation.Controllers.LoginController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -143,6 +150,12 @@ public class LoginView extends JFrame {
     }
 
     private void performLogin() {
+        if (controller == null) {
+            JOptionPane.showMessageDialog(this, "Error: No se ha configurado el controlador",
+                    "Error de configuración", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String idText = IDTextField.getText().trim();
         String password = new String(PasswordTextFiel.getPassword());
 
@@ -173,25 +186,17 @@ public class LoginView extends JFrame {
         setButtonsEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        SwingWorker<LoginResponseDto, Void> worker = new SwingWorker<>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
-            protected LoginResponseDto doInBackground() {
-                return controller.login(id, password);
+            protected Void doInBackground() {
+                controller.login(id, password);
+                return null;
             }
 
             @Override
             protected void done() {
-                try {
-                    LoginResponseDto response = get();
-                    handleLoginResponse(response);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(LoginView.this,
-                            "Error al procesar login: " + e.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                    setButtonsEnabled(true);
-                } finally {
-                    setCursor(Cursor.getDefaultCursor());
-                }
+                // La respuesta se manejará en el método update() a través del patrón observer
+                setCursor(Cursor.getDefaultCursor());
             }
         };
 
@@ -247,5 +252,27 @@ public class LoginView extends JFrame {
         ClearButton.setEnabled(enabled);
         IDTextField.setEnabled(enabled);
         PasswordTextFiel.setEnabled(enabled);
+    }
+
+    /**
+     * Implementación del método update de IObserver
+     * Se invoca cuando el controlador notifica cambios
+     */
+    @Override
+    public void update(EventType eventType, Object data) {
+        if (data instanceof LoginResponseDto) {
+            LoginResponseDto response = (LoginResponseDto) data;
+            
+            // Ejecutar en el Event Dispatch Thread
+            SwingUtilities.invokeLater(() -> {
+                if (eventType == EventType.CREATED) {
+                    // Login exitoso
+                    handleLoginResponse(response);
+                } else if (eventType == EventType.DELETED) {
+                    // Login fallido
+                    handleLoginResponse(response);
+                }
+            });
+        }
     }
 }
