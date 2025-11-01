@@ -1,34 +1,109 @@
 package Presentation.Controllers;
 
-import Domain.Dtos.ResponseDto;
+import Domain.Dtos.MedicoDto;
+import Presentation.Observable;
 import Services.MedicoService;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import Utilities.EventType;
+
+import javax.swing.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-public class MedicoController {
-    private final MedicoService medicoService;
-    private final Gson gson = new Gson();
+public class MedicoController extends Observable {
 
-    public MedicoController() {
-        this.medicoService = new MedicoService();
+    private final MedicoService service;
+
+    public MedicoController(MedicoService service) {
+        this.service = service;
     }
 
-    public List<Map<String, Object>> loadAll() {
-        ResponseDto response = medicoService.getAll();
-        if (response.isSuccess()) {
-            return gson.fromJson(response.getData(),
-                    new TypeToken<List<Map<String, Object>>>(){}.getType());
-        }
-        return null;
+    // === Listar médicos ===
+    public void listarMedicosAsync() {
+        SwingWorker<List<MedicoDto>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<MedicoDto> doInBackground() throws Exception {
+                return service.getAll();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    notifyObservers(EventType.UPDATED, get());
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al listar médicos", e);
+                }
+            }
+        };
+        worker.execute();
     }
 
-    public ResponseDto create(int id, String nombre, String especialidad) {
-        return medicoService.create(id, nombre, especialidad);
+    // === Crear médico ===
+    public void crearMedicoAsync(MedicoDto dto) {
+        SwingWorker<MedicoDto, Void> worker = new SwingWorker<>() {
+            @Override
+            protected MedicoDto doInBackground() throws Exception {
+                return service.create(dto.getId(), dto.getNombre(), dto.getEspecialidad());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                    notifyObservers(EventType.CREATED, dto);
+                    listarMedicosAsync();
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al crear médico", e);
+                }
+            }
+        };
+        worker.execute();
     }
 
-    public ResponseDto delete(int id) {
-        return medicoService.delete(id);
+    // === Eliminar médico ===
+    public void eliminarMedicoAsync(int id) {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return service.delete(id);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (get()) {
+                        notifyObservers(EventType.DELETED, id);
+                        listarMedicosAsync();
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al eliminar médico", e);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    // === Buscar por nombre ===
+    public void buscarMedicoAsync(String nombre) {
+        SwingWorker<List<MedicoDto>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<MedicoDto> doInBackground() throws Exception {
+                return service.searchByName(nombre);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    notifyObservers(EventType.UPDATED, get());
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al buscar médico", e);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void showError(String msg, Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

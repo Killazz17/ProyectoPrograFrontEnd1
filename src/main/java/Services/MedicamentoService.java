@@ -1,31 +1,46 @@
 package Services;
 
+import Domain.Dtos.MedicamentoDto;
+import Domain.Dtos.RequestDto;
 import Domain.Dtos.ResponseDto;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import java.util.List;
 
-public class MedicamentoService {
-    private final ApiClient apiClient;
-    private final Gson gson = new Gson();
+public class MedicamentoService extends BaseService {
 
-    public MedicamentoService() {
-        this.apiClient = ApiClient.getInstance();
+    public MedicamentoService(String host, int port) {
+        super(host, port);
     }
 
-    public ResponseDto getAll() {
-        return apiClient.sendRequest("Medicamentos", "getAllMedicamentos", null);
+    public List<MedicamentoDto> getAll() {
+        RequestDto req = new RequestDto("Medicamento", "getAll", null, null);
+        ResponseDto res = sendRequest(req);
+        if (res != null && res.isSuccess()) {
+            return gson.fromJson(res.getData(), new TypeToken<List<MedicamentoDto>>() {}.getType());
+        }
+        return List.of();
     }
 
-    public ResponseDto create(String codigo, String nombre, String presentacion) {
-        JsonObject data = new JsonObject();
-        data.addProperty("codigo", codigo);
-        data.addProperty("nombre", nombre);
-        data.addProperty("presentacion", presentacion);
-
-        return apiClient.sendRequest("Medicamentos", "createMedicamento", gson.toJson(data));
+    public MedicamentoDto create(MedicamentoDto dto) {
+        RequestDto req = new RequestDto("Medicamento", "create", gson.toJson(dto), null);
+        ResponseDto res = sendRequest(req);
+        return (res != null && res.isSuccess())
+                ? gson.fromJson(res.getData(), MedicamentoDto.class)
+                : null;
     }
 
-    public ResponseDto delete(String codigo) {
-        return apiClient.sendRequest("Medicamentos", "deleteMedicamento", codigo);
+    public boolean delete(String codigo) {
+        RequestDto req = new RequestDto("Medicamento", "delete", gson.toJson(codigo), null);
+        ResponseDto res = sendRequest(req);
+        return res != null && res.isSuccess();
+    }
+
+    public List<MedicamentoDto> searchByName(String nombre) {
+        RequestDto req = new RequestDto("Medicamento", "searchByName", gson.toJson(nombre), null);
+        ResponseDto res = sendRequest(req);
+        if (res != null && res.isSuccess()) {
+            return gson.fromJson(res.getData(), new TypeToken<List<MedicamentoDto>>() {}.getType());
+        }
+        return List.of();
     }
 }

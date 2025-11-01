@@ -1,47 +1,58 @@
 package Presentation.Views;
 
-import Services.ApiClient;
-import Services.AuthService;
+import Domain.Dtos.LoginResponseDto;
 import javax.swing.*;
 
-public class MainWindow extends JFrame implements ApiClient.MessageListener {
+/**
+ * Ventana principal del sistema hospitalario.
+ * Se abre después de un login exitoso y configura las pestañas
+ * según el rol del usuario autenticado.
+ */
+public class MainWindow extends JFrame {
     private JPanel ContentPanel;
     private JTabbedPane MainTabPanel;
     private JButton LogoutButton;
 
-    private final AuthService authService;
-    private final ApiClient apiClient;
+    private final LoginResponseDto usuario;
 
-    public MainWindow(AuthService authService) {
-        this.authService = authService;
-        this.apiClient = ApiClient.getInstance();
+    // Constructor que recibe al usuario autenticado
+    public MainWindow(LoginResponseDto usuario) {
+        this.usuario = usuario;
 
         setupFrame();
         setupTabs();
         setupListeners();
-
-        apiClient.setMessageListener(this);
     }
 
     private void setupFrame() {
         setContentPane(ContentPanel);
-        setTitle("Sistema Hospital - " + authService.getCurrentUser().getNombre());
+        setTitle("Sistema Hospital - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
         setSize(1024, 768);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
     }
 
     private void setupTabs() {
-        AuthService.UserSession user = authService.getCurrentUser();
+        String rol = usuario.getRol();
 
-        if (user.isAdmin()) {
-            setupAdminTabs();
-        } else if (user.isMedico()) {
-            setupMedicoTabs();
-        } else if (user.isFarmaceuta()) {
-            setupFarmaceutaTabs();
-        } else if (user.isPaciente()) {
-            setupPacienteTabs();
+        if (rol == null) return;
+
+        switch (rol.toUpperCase()) {
+            case "ADMIN":
+                setupAdminTabs();
+                break;
+            case "MEDICO":
+                setupMedicoTabs();
+                break;
+            case "FARMACEUTA":
+                setupFarmaceutaTabs();
+                break;
+            case "PACIENTE":
+                setupPacienteTabs();
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Rol desconocido: " + rol);
+                break;
         }
     }
 
@@ -80,7 +91,6 @@ public class MainWindow extends JFrame implements ApiClient.MessageListener {
                 );
 
                 if (result == JOptionPane.YES_OPTION) {
-                    apiClient.disconnect();
                     System.exit(0);
                 }
             }
@@ -96,25 +106,11 @@ public class MainWindow extends JFrame implements ApiClient.MessageListener {
         );
 
         if (result == JOptionPane.YES_OPTION) {
-            authService.logout();
-
             SwingUtilities.invokeLater(() -> {
                 LoginView loginView = new LoginView();
                 loginView.setVisible(true);
                 dispose();
             });
         }
-    }
-
-    @Override
-    public void onMessageReceived(String message) {
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(
-                    this,
-                    message,
-                    "Notificación del Servidor",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        });
     }
 }

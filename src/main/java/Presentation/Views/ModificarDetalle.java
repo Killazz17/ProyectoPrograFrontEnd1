@@ -2,7 +2,7 @@ package Presentation.Views;
 
 import javax.swing.*;
 
-public class ModificarDetalle {
+public class ModificarDetalle extends JFrame {
     private JPanel ModifyDetailMainPanel;
     private JPanel MainPanel;
     private JPanel ModifyPanel;

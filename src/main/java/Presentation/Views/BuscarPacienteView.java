@@ -2,7 +2,7 @@ package Presentation.Views;
 
 import javax.swing.*;
 
-public class BuscarPacienteView {
+public class BuscarPacienteView extends JFrame {
     private JPanel SearchPatientMainPanel;
     private JPanel MainPanel;
     private JLabel FilterByLabel;

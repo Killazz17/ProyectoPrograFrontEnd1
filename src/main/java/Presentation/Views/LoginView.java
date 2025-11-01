@@ -1,9 +1,6 @@
 package Presentation.Views;
 
-import Domain.Dtos.ResponseDto;
-import Presentation.Controllers.LoginController;
-import Services.ApiClient;
-import Services.AuthService;
+import Domain.Dtos.LoginResponseDto;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -26,23 +23,14 @@ public class LoginView extends JFrame {
     private JButton ChangePasswordButton;
     private JButton LoginButton;
 
-    private final LoginController controller;
-    private final ApiClient apiClient;
+    private LoginResponseDto responseData;
+    private final Presentation.Controllers.AuthController controller;
 
     public LoginView() {
-        this.controller = new LoginController();
-        this.apiClient = ApiClient.getInstance();
+        this.controller = new Presentation.Controllers.AuthController();
 
         setupFrame();
         setupListeners();
-
-        // Intentar conectar al servidor
-        if (!apiClient.connect()) {
-            JOptionPane.showMessageDialog(this,
-                    "No se pudo conectar al servidor.\nAsegúrese de que el backend esté corriendo en puerto 7070.",
-                    "Error de Conexión",
-                    JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private void setupFrame() {
@@ -108,16 +96,16 @@ public class LoginView extends JFrame {
 
         setButtonsEnabled(false);
 
-        SwingWorker<ResponseDto, Void> worker = new SwingWorker<>() {
+        SwingWorker<LoginResponseDto, Void> worker = new SwingWorker<>() {
             @Override
-            protected ResponseDto doInBackground() {
+            protected LoginResponseDto doInBackground() {
                 return controller.login(id, password);
             }
 
             @Override
             protected void done() {
                 try {
-                    ResponseDto response = get();
+                    LoginResponseDto response = get();
                     handleLoginResponse(response);
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(LoginView.this,
@@ -131,18 +119,34 @@ public class LoginView extends JFrame {
         worker.execute();
     }
 
-    private void handleLoginResponse(ResponseDto response) {
+    /**
+     * Maneja la respuesta del login después de recibirla del AuthController.
+     * Si es exitoso, abre la ventana principal; si no, muestra el mensaje de error.
+     */
+    private void handleLoginResponse(LoginResponseDto response) {
         if (response.isSuccess()) {
-            AuthService.UserSession user = controller.getCurrentUser();
-            JOptionPane.showMessageDialog(this,
-                    "Bienvenido " + user.getNombre() + "\nRol: " + user.getRol(),
-                    "Login Exitoso", JOptionPane.INFORMATION_MESSAGE);
+            this.responseData = response;
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Bienvenido " + response.getNombre() + " (" + response.getRol() + ")",
+                    "Login exitoso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
-            openMainWindow();
+            // Abre la ventana principal con el usuario autenticado
+            SwingUtilities.invokeLater(() -> {
+                MainWindow mainWindow = new MainWindow(response);
+                mainWindow.setVisible(true);
+                dispose();
+            });
 
         } else {
-            JOptionPane.showMessageDialog(this, response.getMessage(),
-                    "Error de Login", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    response.getMensaje(),
+                    "Error de login",
+                    JOptionPane.ERROR_MESSAGE
+            );
             setButtonsEnabled(true);
             clearFields();
             IDTextField.requestFocus();
@@ -151,7 +155,7 @@ public class LoginView extends JFrame {
 
     private void openMainWindow() {
         SwingUtilities.invokeLater(() -> {
-            MainWindow mainWindow = new MainWindow(controller.getAuthService());
+            MainWindow mainWindow = new MainWindow(responseData);
             mainWindow.setVisible(true);
             dispose();
         });
@@ -168,18 +172,5 @@ public class LoginView extends JFrame {
         ClearButton.setEnabled(enabled);
         IDTextField.setEnabled(enabled);
         PasswordTextFiel.setEnabled(enabled);
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            LoginView login = new LoginView();
-            login.setVisible(true);
-        });
     }
 }

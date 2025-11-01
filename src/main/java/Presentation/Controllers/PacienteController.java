@@ -1,35 +1,110 @@
 package Presentation.Controllers;
 
-import Domain.Dtos.ResponseDto;
+import Domain.Dtos.PacienteDto;
+import Presentation.Observable;
 import Services.PacienteService;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.util.Date;
+import Utilities.EventType;
+
+import javax.swing.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-public class PacienteController {
-    private final PacienteService pacienteService;
-    private final Gson gson = new Gson();
+public class PacienteController extends Observable {
 
-    public PacienteController() {
-        this.pacienteService = new PacienteService();
+    private final PacienteService service;
+
+    public PacienteController(PacienteService service) {
+        this.service = service;
     }
 
-    public List<Map<String, Object>> loadAll() {
-        ResponseDto response = pacienteService.getAll();
-        if (response.isSuccess()) {
-            return gson.fromJson(response.getData(),
-                    new TypeToken<List<Map<String, Object>>>(){}.getType());
-        }
-        return null;
+    // === Listar pacientes ===
+    public void listarPacientesAsync() {
+        SwingWorker<List<PacienteDto>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<PacienteDto> doInBackground() throws Exception {
+                return service.getAll();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<PacienteDto> pacientes = get();
+                    notifyObservers(EventType.UPDATED, pacientes);
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al listar pacientes", e);
+                }
+            }
+        };
+        worker.execute();
     }
 
-    public ResponseDto create(int id, String nombre, Date fechaNacimiento, String numeroTelefono) {
-        return pacienteService.create(id, nombre, fechaNacimiento, numeroTelefono);
+    // === Crear paciente ===
+    public void crearPacienteAsync(PacienteDto dto) {
+        SwingWorker<PacienteDto, Void> worker = new SwingWorker<>() {
+            @Override
+            protected PacienteDto doInBackground() throws Exception {
+                return service.create(dto.getId(), dto.getNombre(), dto.getFechaNacimiento(), dto.getTelefono());
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                    notifyObservers(EventType.CREATED, dto);
+                    listarPacientesAsync();
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al crear paciente", e);
+                }
+            }
+        };
+        worker.execute();
     }
 
-    public ResponseDto delete(int id) {
-        return pacienteService.delete(id);
+    // === Eliminar paciente ===
+    public void eliminarPacienteAsync(int id) {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return service.delete(id);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (get()) {
+                        notifyObservers(EventType.DELETED, id);
+                        listarPacientesAsync();
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al eliminar paciente", e);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    // === Buscar paciente por nombre ===
+    public void buscarPacienteAsync(String nombre) {
+        SwingWorker<List<PacienteDto>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<PacienteDto> doInBackground() throws Exception {
+                return service.searchByName(nombre);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    notifyObservers(EventType.UPDATED, get());
+                } catch (InterruptedException | ExecutionException e) {
+                    showError("Error al buscar paciente", e);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void showError(String msg, Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

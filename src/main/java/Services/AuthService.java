@@ -1,67 +1,48 @@
 package Services;
 
+import Domain.Dtos.RequestDto;
 import Domain.Dtos.ResponseDto;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import Domain.Dtos.LoginRequestDto;
+import Domain.Dtos.LoginResponseDto;
 
-public class AuthService {
-    private final ApiClient apiClient;
-    private final Gson gson = new Gson();
-    private UserSession currentUser;
+public class AuthService extends BaseService {
 
-    public AuthService() {
-        this.apiClient = ApiClient.getInstance();
+    public AuthService(String host, int port) {
+        super(host, port);
     }
 
-    public ResponseDto login(int id, String clave) {
-        JsonObject loginData = new JsonObject();
-        loginData.addProperty("id", id);
-        loginData.addProperty("clave", clave);
+    /**
+     * Envía las credenciales al backend y devuelve un LoginResponseDto
+     */
+    public LoginResponseDto login(LoginRequestDto credentials) {
+        // Convertimos el objeto a JSON antes de enviarlo
+        String jsonData = gson.toJson(credentials);
+        RequestDto req = new RequestDto("Auth", "login", jsonData, null);
 
-        ResponseDto response = apiClient.sendRequest("Auth", "login", gson.toJson(loginData));
-
-        if (response.isSuccess()) {
-            JsonObject userData = gson.fromJson(response.getData(), JsonObject.class);
-            currentUser = new UserSession(
-                    userData.get("id").getAsInt(),
-                    userData.get("nombre").getAsString(),
-                    userData.get("rol").getAsString()
-            );
+        ResponseDto res = sendRequest(req);
+        if (res == null) {
+            return new LoginResponseDto(false, "", "", "No se pudo conectar con el servidor");
         }
 
-        return response;
-    }
-
-    public UserSession getCurrentUser() {
-        return currentUser;
-    }
-
-    public void logout() {
-        currentUser = null;
-    }
-
-    public boolean isLoggedIn() {
-        return currentUser != null;
-    }
-
-    public static class UserSession {
-        private final int id;
-        private final String nombre;
-        private final String rol;
-
-        public UserSession(int id, String nombre, String rol) {
-            this.id = id;
-            this.nombre = nombre;
-            this.rol = rol;
+        // Si la respuesta general fue exitosa, intentamos convertir los datos a LoginResponseDto
+        if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
+            try {
+                return gson.fromJson(res.getData(), LoginResponseDto.class);
+            } catch (Exception e) {
+                return new LoginResponseDto(false, "", "", "Error al interpretar la respuesta del servidor");
+            }
         }
 
-        public int getId() { return id; }
-        public String getNombre() { return nombre; }
-        public String getRol() { return rol; }
+        // Si hubo error, devolvemos el mensaje del ResponseDto
+        return new LoginResponseDto(false, "", "", res.getMessage());
+    }
 
-        public boolean isAdmin() { return "ADMINISTRADOR".equals(rol); }
-        public boolean isMedico() { return "MEDICO".equals(rol); }
-        public boolean isFarmaceuta() { return "FARMACEUTA".equals(rol); }
-        public boolean isPaciente() { return "PACIENTE".equals(rol); }
+    /**
+     * Envía solicitud de cierre de sesión
+     */
+    public boolean logout(String token) {
+        RequestDto req = new RequestDto("Auth", "logout", null, token);
+        ResponseDto res = sendRequest(req);
+        return res != null && res.isSuccess();
     }
 }

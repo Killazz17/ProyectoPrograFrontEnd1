@@ -5,16 +5,16 @@ import Domain.Dtos.LoginResponseDto;
 import Services.AuthService;
 
 /**
- * Controlador de login compatible con la arquitectura nueva (AuthService + sockets)
+ * AuthController actúa como intermediario entre la vista (LoginView)
+ * y el servicio AuthService que se comunica con el backend.
  */
-public class LoginController {
+public class AuthController {
     private final AuthService authService;
 
-    public LoginController() {
+    public AuthController() {
         this.authService = new AuthService();
     }
 
-    // Método para hacer login usando ID (int) y contraseña
     public LoginResponseDto login(int id, String password) {
         try {
             LoginRequestDto request = new LoginRequestDto(id, password);

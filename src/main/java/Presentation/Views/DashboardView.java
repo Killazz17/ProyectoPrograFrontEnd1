@@ -1,4 +1,6 @@
 package Presentation.Views;
 
-public class DashboardView {
+import javax.swing.*;
+
+public class DashboardView extends JFrame {
 }

@@ -2,7 +2,7 @@ package Presentation.Views;
 
 import javax.swing.*;
 
-public class AgregarMedicamento {
+public class AgregarMedicamento extends JFrame {
     private JPanel AddPillMainPanel;
     private JPanel MainPanel;
     private JLabel FilterByLabel;
