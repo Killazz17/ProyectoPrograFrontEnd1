@@ -39,6 +39,11 @@ public class BaseService {
      * Envía una solicitud al servidor y espera una respuesta.
      * Establece una conexión temporal, envía el RequestDto como JSON,
      * lee la respuesta y cierra la conexión.
+     * 
+     * Nota: Este método asume que el protocolo del backend envía
+     * respuestas JSON en una sola línea terminada con newline.
+     * Si el backend usa un protocolo diferente, este método debe
+     * ser ajustado para leer múltiples líneas o usar delimitadores.
      */
     protected ResponseDto sendRequest(RequestDto request) {
         try (Socket socket = createSocket();
@@ -49,7 +54,7 @@ public class BaseService {
             String jsonRequest = gson.toJson(request);
             out.println(jsonRequest);
 
-            // Leer la respuesta
+            // Leer la respuesta (asume JSON en una línea)
             String jsonResponse = in.readLine();
             if (jsonResponse != null && !jsonResponse.isEmpty()) {
                 return gson.fromJson(jsonResponse, ResponseDto.class);
