@@ -8,6 +8,10 @@ import java.util.List;
 
 public class HistoricoRecetaService extends BaseService {
 
+    public HistoricoRecetaService() {
+        super();
+    }
+
     public HistoricoRecetaService(String host, int port) {
         super(host, port);
     }

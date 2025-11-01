@@ -8,6 +8,10 @@ import java.util.List;
 
 public class DespachoService extends BaseService {
 
+    public DespachoService() {
+        super();
+    }
+
     public DespachoService(String host, int port) {
         super(host, port);
     }

@@ -8,6 +8,10 @@ import java.util.List;
 
 public class MedicoService extends BaseService {
 
+    public MedicoService() {
+        super();
+    }
+
     public MedicoService(String host, int port) {
         super(host, port);
     }

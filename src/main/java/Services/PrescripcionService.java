@@ -9,6 +9,10 @@ import java.util.List;
 
 public class PrescripcionService extends BaseService {
 
+    public PrescripcionService() {
+        super();
+    }
+
     public PrescripcionService(String host, int port) {
         super(host, port);
     }

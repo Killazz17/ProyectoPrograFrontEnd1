@@ -7,6 +7,10 @@ import Domain.Dtos.LoginResponseDto;
 
 public class AuthService extends BaseService {
 
+    public AuthService() {
+        super();
+    }
+
     public AuthService(String host, int port) {
         super(host, port);
     }

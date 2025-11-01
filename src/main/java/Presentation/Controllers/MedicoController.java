@@ -42,7 +42,7 @@ public class MedicoController extends Observable {
         SwingWorker<MedicoDto, Void> worker = new SwingWorker<>() {
             @Override
             protected MedicoDto doInBackground() throws Exception {
-                return service.create(dto.getId(), dto.getNombre(), dto.getEspecialidad());
+                return service.create(dto);
             }
 
             @Override
