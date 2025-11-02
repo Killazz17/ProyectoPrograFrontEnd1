@@ -16,10 +16,39 @@ public class AuthService extends BaseService {
     }
 
     /**
-     * Envía las credenciales al backend y devuelve un LoginResponseDto
+     * Login usando nombre de usuario (NO id numérico)
+     */
+    public LoginResponseDto loginByNombre(String nombre, String clave) {
+        // Crear JSON manualmente con nombre y clave
+        String jsonData = String.format("{\"nombre\":\"%s\",\"clave\":\"%s\"}", nombre, clave);
+        RequestDto req = new RequestDto("Auth", "loginByNombre", jsonData, null);
+
+        ResponseDto res = sendRequest(req);
+        if (res == null) {
+            return new LoginResponseDto(false, "", "", "No se pudo conectar con el servidor");
+        }
+
+        if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
+            try {
+                com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
+
+                String nombreUsuario = jsonObject.get("nombre").getAsString();
+                String rol = jsonObject.get("rol").getAsString();
+
+                return new LoginResponseDto(true, nombreUsuario, rol, "Login exitoso");
+            } catch (Exception e) {
+                System.err.println("[AuthService] Error al interpretar respuesta: " + e.getMessage());
+                return new LoginResponseDto(false, "", "", "Error al interpretar la respuesta del servidor");
+            }
+        }
+
+        return new LoginResponseDto(false, "", "", res.getMessage());
+    }
+
+    /**
+     * Login usando ID (para compatibilidad)
      */
     public LoginResponseDto login(LoginRequestDto credentials) {
-        // Convertimos el objeto a JSON antes de enviarlo
         String jsonData = gson.toJson(credentials);
         RequestDto req = new RequestDto("Auth", "login", jsonData, null);
 
@@ -28,10 +57,8 @@ public class AuthService extends BaseService {
             return new LoginResponseDto(false, "", "", "No se pudo conectar con el servidor");
         }
 
-        // Si la respuesta general fue exitosa, intentamos convertir los datos a LoginResponseDto
         if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
             try {
-                // El backend devuelve UserResponseDto, así que lo mapeamos a LoginResponseDto
                 com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
 
                 String nombre = jsonObject.get("nombre").getAsString();
@@ -44,7 +71,6 @@ public class AuthService extends BaseService {
             }
         }
 
-        // Si hubo error, devolvemos el mensaje del ResponseDto
         return new LoginResponseDto(false, "", "", res.getMessage());
     }
 

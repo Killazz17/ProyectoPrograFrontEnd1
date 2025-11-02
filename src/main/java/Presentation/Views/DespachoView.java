@@ -10,9 +10,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
-public class DespachoView extends JFrame implements IObserver {
-
-    private JPanel ContentPanel;        // ✅ agregado como root
+public class DespachoView extends JPanel implements IObserver {
+    private JPanel ContentPanel;
     private JPanel MainContentPanel;
     private JPanel ButtonPanel;
     private JButton enProcesoButton;
@@ -30,18 +29,14 @@ public class DespachoView extends JFrame implements IObserver {
         controller = new DespachoController(new DespachoService());
         controller.addObserver(this);
 
-        setupFrame();
+        // Configurar este JPanel con el contenido del form
+        setLayout(new java.awt.BorderLayout());
+        if (ContentPanel != null) {
+            add(ContentPanel, java.awt.BorderLayout.CENTER);
+        }
+
         setupEvents();
         controller.listarDespachosAsync();
-    }
-
-    private void setupFrame() {
-        // ✅ usar ContentPanel como root (el que genera el GUI Designer)
-        setContentPane(ContentPanel);
-        setTitle("Despacho de Recetas");
-        setSize(1000, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
     }
 
     private void setupEvents() {

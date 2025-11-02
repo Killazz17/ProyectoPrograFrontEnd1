@@ -10,31 +10,30 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class LoginView extends JFrame implements IObserver {
-    private JPanel ContentPanel;
-    private JPanel LoginPanel;
-    private JPanel FormPanel;
-    private JPanel IDGroupPanel;
-    private JLabel IDLabel;
-    private JTextField IDTextField;
-    private JPanel PasswordGroupPanel;
+    // Componentes generados por el .form
+    private JPanel ContentPane;
+    private JPanel ImagePane;
+    private JPanel LoginForm;
+    private JPanel FieldsPane;
+    private JPanel UserFormPanel;
+    private JLabel UserLabel;
+    private JTextField UserField;
+    private JPanel PasswordFormPanel;
     private JLabel PasswordLabel;
-    private JPasswordField PasswordTextFiel;
-    private JPanel ImagePanel;
-    private JLabel ImageLabel;
+    private JPasswordField PasswordField;
     private JPanel ButtonPanel;
-    private JButton ClearButton;
+    private JButton LogginButton;
+    private JButton CleanFieldsButton;
     private JButton ChangePasswordButton;
-    private JButton LoginButton;
 
     private LoginResponseDto responseData;
     private Presentation.Controllers.LoginController controller;
 
     public LoginView() {
-        createUIComponents(); // Crear componentes manualmente
         setupFrame();
         setupListeners();
     }
-    
+
     /**
      * Establece el controlador para esta vista
      */
@@ -42,95 +41,27 @@ public class LoginView extends JFrame implements IObserver {
         this.controller = controller;
     }
 
-    /**
-     * Crear todos los componentes de la UI manualmente (sin GUI Designer)
-     */
-    private void createUIComponents() {
-        // Panel principal
-        ContentPanel = new JPanel(new GridBagLayout());
-        ContentPanel.setBackground(Color.WHITE);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // Imagen de usuario (usando texto como placeholder)
-        ImagePanel = new JPanel();
-        ImageLabel = new JLabel("👤", SwingConstants.CENTER);
-        ImageLabel.setFont(new Font("Dialog", Font.PLAIN, 72));
-        ImagePanel.add(ImageLabel);
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        ContentPanel.add(ImagePanel, gbc);
-
-        // Panel de formulario
-        FormPanel = new JPanel(new GridLayout(2, 1, 5, 10));
-
-        // ID
-        IDGroupPanel = new JPanel(new BorderLayout(10, 0));
-        IDLabel = new JLabel("ID:");
-        IDTextField = new JTextField(15);
-        IDGroupPanel.add(IDLabel, BorderLayout.WEST);
-        IDGroupPanel.add(IDTextField, BorderLayout.CENTER);
-
-        // Password
-        PasswordGroupPanel = new JPanel(new BorderLayout(10, 0));
-        PasswordLabel = new JLabel("Password:");
-        PasswordTextFiel = new JPasswordField(15);
-        PasswordGroupPanel.add(PasswordLabel, BorderLayout.WEST);
-        PasswordGroupPanel.add(PasswordTextFiel, BorderLayout.CENTER);
-
-        FormPanel.add(IDGroupPanel);
-        FormPanel.add(PasswordGroupPanel);
-
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        ContentPanel.add(FormPanel, gbc);
-
-        // Panel de botones
-        ButtonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
-
-        LoginButton = new JButton("Entrar");
-        LoginButton.setBackground(new Color(76, 175, 80));
-        LoginButton.setForeground(Color.WHITE);
-        LoginButton.setFocusPainted(false);
-
-        ClearButton = new JButton("Limpiar");
-        ClearButton.setBackground(new Color(158, 158, 158));
-        ClearButton.setForeground(Color.WHITE);
-        ClearButton.setFocusPainted(false);
-
-        ChangePasswordButton = new JButton("Cambiar Clave");
-        ChangePasswordButton.setBackground(new Color(33, 150, 243));
-        ChangePasswordButton.setForeground(Color.WHITE);
-        ChangePasswordButton.setEnabled(false);
-        ChangePasswordButton.setFocusPainted(false);
-
-        ButtonPanel.add(LoginButton);
-        ButtonPanel.add(ClearButton);
-        ButtonPanel.add(ChangePasswordButton);
-
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        ContentPanel.add(ButtonPanel, gbc);
-    }
-
     private void setupFrame() {
-        setContentPane(ContentPanel);
+        setContentPane(ContentPane);
         setTitle("Sistema Hospital - Login");
-        setSize(450, 350);
+        setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
     }
 
     private void setupListeners() {
-        LoginButton.addActionListener(e -> performLogin());
-        ClearButton.addActionListener(e -> clearFields());
+        // Botón Ingresar
+        LogginButton.addActionListener(e -> performLogin());
 
-        PasswordTextFiel.addKeyListener(new KeyAdapter() {
+        // Botón Limpiar
+        CleanFieldsButton.addActionListener(e -> clearFields());
+
+        // Botón Cambiar Contraseña (deshabilitado por ahora)
+        ChangePasswordButton.setEnabled(false);
+
+        // Enter en el campo de password ejecuta login
+        PasswordField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -139,11 +70,12 @@ public class LoginView extends JFrame implements IObserver {
             }
         });
 
-        IDTextField.addKeyListener(new KeyAdapter() {
+        // Enter en el campo de usuario mueve el foco a password
+        UserField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    PasswordTextFiel.requestFocus();
+                    PasswordField.requestFocus();
                 }
             }
         });
@@ -156,30 +88,20 @@ public class LoginView extends JFrame implements IObserver {
             return;
         }
 
-        String idText = IDTextField.getText().trim();
-        String password = new String(PasswordTextFiel.getPassword());
+        String usuario = UserField.getText().trim();
+        String clave = new String(PasswordField.getPassword());
 
-        if (idText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor ingrese su ID",
+        if (usuario.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese su usuario",
                     "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            IDTextField.requestFocus();
+            UserField.requestFocus();
             return;
         }
 
-        if (password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor ingrese su contraseña",
+        if (clave.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese su clave",
                     "Campo requerido", JOptionPane.WARNING_MESSAGE);
-            PasswordTextFiel.requestFocus();
-            return;
-        }
-
-        int id;
-        try {
-            id = Integer.parseInt(idText);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El ID debe ser un número válido",
-                    "ID inválido", JOptionPane.ERROR_MESSAGE);
-            IDTextField.requestFocus();
+            PasswordField.requestFocus();
             return;
         }
 
@@ -189,13 +111,13 @@ public class LoginView extends JFrame implements IObserver {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                controller.login(id, password);
+                // ✅ Usar loginByNombre para login con nombre de usuario
+                controller.loginByNombre(usuario, clave);
                 return null;
             }
 
             @Override
             protected void done() {
-                // La respuesta se manejará en el método update() a través del patrón observer
                 setCursor(Cursor.getDefaultCursor());
             }
         };
@@ -237,21 +159,21 @@ public class LoginView extends JFrame implements IObserver {
             );
             setButtonsEnabled(true);
             clearFields();
-            IDTextField.requestFocus();
+            UserField.requestFocus();
         }
     }
 
     private void clearFields() {
-        IDTextField.setText("");
-        PasswordTextFiel.setText("");
-        IDTextField.requestFocus();
+        UserField.setText("");
+        PasswordField.setText("");
+        UserField.requestFocus();
     }
 
     private void setButtonsEnabled(boolean enabled) {
-        LoginButton.setEnabled(enabled);
-        ClearButton.setEnabled(enabled);
-        IDTextField.setEnabled(enabled);
-        PasswordTextFiel.setEnabled(enabled);
+        LogginButton.setEnabled(enabled);
+        CleanFieldsButton.setEnabled(enabled);
+        UserField.setEnabled(enabled);
+        PasswordField.setEnabled(enabled);
     }
 
     /**
@@ -262,7 +184,7 @@ public class LoginView extends JFrame implements IObserver {
     public void update(EventType eventType, Object data) {
         if (data instanceof LoginResponseDto) {
             LoginResponseDto response = (LoginResponseDto) data;
-            
+
             // Ejecutar en el Event Dispatch Thread
             SwingUtilities.invokeLater(() -> {
                 if (eventType == EventType.CREATED) {

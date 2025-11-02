@@ -32,6 +32,11 @@ public class MainWindow extends JFrame {
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
 
+        // Información del usuario
+        JLabel userInfoLabel = new JLabel("Usuario: " + usuario.getNombre() + " | Rol: " + usuario.getRol());
+        userInfoLabel.setFont(new Font("Dialog", Font.BOLD, 12));
+        toolbar.add(userInfoLabel);
+
         // Spacer
         toolbar.add(Box.createHorizontalGlue());
 
@@ -50,7 +55,7 @@ public class MainWindow extends JFrame {
     private void setupFrame() {
         setContentPane(ContentPanel);
         setTitle("Sistema Hospital - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
-        setSize(1024, 768);
+        setSize(1200, 768);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
     }
@@ -58,7 +63,12 @@ public class MainWindow extends JFrame {
     private void setupTabs() {
         String rol = usuario.getRol();
 
-        if (rol == null) return;
+        if (rol == null) {
+            JOptionPane.showMessageDialog(this, "Rol no definido");
+            return;
+        }
+
+        System.out.println("[MainWindow] Configurando pestañas para rol: " + rol);
 
         switch (rol.toUpperCase()) {
             case "ADMIN":
@@ -78,27 +88,70 @@ public class MainWindow extends JFrame {
                 JOptionPane.showMessageDialog(this, "Rol desconocido: " + rol);
                 break;
         }
+
+        // Si no se agregaron pestañas, mostrar error
+        if (MainTabPanel.getTabCount() == 0) {
+            JPanel errorPanel = new JPanel(new BorderLayout());
+            JLabel errorLabel = new JLabel(
+                    "No se configuraron pestañas para el rol: " + rol,
+                    SwingConstants.CENTER
+            );
+            errorLabel.setFont(new Font("Dialog", Font.BOLD, 16));
+            errorPanel.add(errorLabel, BorderLayout.CENTER);
+            MainTabPanel.addTab("Error", errorPanel);
+        }
     }
 
     private void setupAdminTabs() {
-        MainTabPanel.addTab("📋 Pacientes", new PacienteView());
-        MainTabPanel.addTab("👨‍⚕️ Médicos", new MedicoView());
-        MainTabPanel.addTab("💊 Farmacéutas", new FarmaceutaView());
-        MainTabPanel.addTab("💉 Medicamentos", new MedicamentosView());
+        System.out.println("[MainWindow] Agregando pestañas de administrador");
+
+        // ✅ Agregar los JPanel directamente (no usar getContentPane)
+        PacienteView pacienteView = new PacienteView();
+        MainTabPanel.addTab("📋 Pacientes", pacienteView);
+
+        MedicoView medicoView = new MedicoView();
+        MainTabPanel.addTab("👨‍⚕️ Médicos", medicoView);
+
+        FarmaceutaView farmaceutaView = new FarmaceutaView();
+        MainTabPanel.addTab("💊 Farmacéutas", farmaceutaView);
+
+        MedicamentosView medicamentosView = new MedicamentosView();
+        MainTabPanel.addTab("💉 Medicamentos", medicamentosView);
+
+        System.out.println("[MainWindow] Pestañas de admin agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupMedicoTabs() {
-        MainTabPanel.addTab("📝 Prescribir", new PrescribirView());
-        MainTabPanel.addTab("📋 Pacientes", new PacienteView());
+        System.out.println("[MainWindow] Agregando pestañas de médico");
+
+        PrescribirView prescribirView = new PrescribirView();
+        MainTabPanel.addTab("📝 Prescribir", prescribirView);
+
+        PacienteView pacienteView = new PacienteView();
+        MainTabPanel.addTab("📋 Pacientes", pacienteView);
+
+        System.out.println("[MainWindow] Pestañas de médico agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupFarmaceutaTabs() {
-        MainTabPanel.addTab("📦 Despacho", new DespachoView());
-        MainTabPanel.addTab("💉 Medicamentos", new MedicamentosView());
+        System.out.println("[MainWindow] Agregando pestañas de farmaceuta");
+
+        DespachoView despachoView = new DespachoView();
+        MainTabPanel.addTab("📦 Despacho", despachoView);
+
+        MedicamentosView medicamentosView = new MedicamentosView();
+        MainTabPanel.addTab("💉 Medicamentos", medicamentosView);
+
+        System.out.println("[MainWindow] Pestañas de farmaceuta agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupPacienteTabs() {
-        MainTabPanel.addTab("📜 Mis Recetas", new HistoricoRecetaView());
+        System.out.println("[MainWindow] Agregando pestañas de paciente");
+
+        HistoricoRecetaView historicoView = new HistoricoRecetaView();
+        MainTabPanel.addTab("📜 Mis Recetas", historicoView);
+
+        System.out.println("[MainWindow] Pestañas de paciente agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupListeners() {
@@ -132,6 +185,10 @@ public class MainWindow extends JFrame {
         if (result == JOptionPane.YES_OPTION) {
             SwingUtilities.invokeLater(() -> {
                 LoginView loginView = new LoginView();
+                Presentation.Controllers.LoginController loginController =
+                        new Presentation.Controllers.LoginController(loginView, new Services.AuthService());
+                loginController.addObserver(loginView);
+                loginView.setController(loginController);
                 loginView.setVisible(true);
                 dispose();
             });

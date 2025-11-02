@@ -8,12 +8,10 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.util.List;
 
-public class HistoricoRecetaView extends JFrame implements IObserver {
-
-    private JPanel ContentPanel;        // ✅ agregado como root
+public class HistoricoRecetaView extends JPanel implements IObserver {
+    private JPanel ContentPanel;
     private JPanel MainPanel;
     private JPanel HistoricoMainPanel;
     private JPanel SearchPanel;
@@ -30,17 +28,14 @@ public class HistoricoRecetaView extends JFrame implements IObserver {
         controller = new HistoricoRecetaController(new HistoricoRecetaService());
         controller.addObserver(this);
 
-        setupFrame();
+        // Configurar este JPanel con el contenido del form
+        setLayout(new java.awt.BorderLayout());
+        if (ContentPanel != null) {
+            add(ContentPanel, java.awt.BorderLayout.CENTER);
+        }
+
         setupEvents();
         controller.listarHistoricoAsync();
-    }
-
-    private void setupFrame() {
-        setContentPane(ContentPanel);
-        setTitle("Histórico de Recetas");
-        setSize(950, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
     }
 
     private void setupEvents() {

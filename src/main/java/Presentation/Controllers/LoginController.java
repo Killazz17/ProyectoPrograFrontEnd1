@@ -19,19 +19,38 @@ public class LoginController extends Observable {
         this.authService = authService;
     }
 
-    // Método para hacer login usando ID (int) y contraseña
-    public LoginResponseDto login(int id, String password) {
+    // Método para hacer login usando NOMBRE DE USUARIO y contraseña
+    public LoginResponseDto loginByNombre(String nombreUsuario, String clave) {
         try {
-            LoginRequestDto request = new LoginRequestDto(id, password);
-            LoginResponseDto response = authService.login(request);
-            
+            LoginResponseDto response = authService.loginByNombre(nombreUsuario, clave);
+
             // Notificar a los observadores sobre el resultado del login
             if (response.isSuccess()) {
                 notifyObservers(EventType.CREATED, response);
             } else {
                 notifyObservers(EventType.DELETED, response);
             }
-            
+
+            return response;
+        } catch (Exception e) {
+            LoginResponseDto errorResponse = new LoginResponseDto(false, null, null, "Error al conectar con el servidor: " + e.getMessage());
+            notifyObservers(EventType.DELETED, errorResponse);
+            return errorResponse;
+        }
+    }
+
+    // Método para hacer login usando ID (para compatibilidad)
+    public LoginResponseDto login(int id, String password) {
+        try {
+            LoginRequestDto request = new LoginRequestDto(id, password);
+            LoginResponseDto response = authService.login(request);
+
+            if (response.isSuccess()) {
+                notifyObservers(EventType.CREATED, response);
+            } else {
+                notifyObservers(EventType.DELETED, response);
+            }
+
             return response;
         } catch (Exception e) {
             LoginResponseDto errorResponse = new LoginResponseDto(false, null, null, "Error al conectar con el servidor: " + e.getMessage());

@@ -4,22 +4,26 @@ import java.io.Serializable;
 
 public class LoginRequestDto implements Serializable {
     private int id;
-    private String password;
+    private String clave;
 
-    public LoginRequestDto(int id, String password) {
+    public LoginRequestDto(int id, String clave) {
         this.id = id;
-        this.password = password;
+        this.clave = clave;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-
-    public String getPassword() {
-        return password;
+    public int getId() {
+        return id;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getClave() {
+        return clave;
+    }
+
+    public void setClave(String clave) {
+        this.clave = clave;
     }
 }

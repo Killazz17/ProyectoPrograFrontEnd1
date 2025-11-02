@@ -10,8 +10,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
-public class PrescribirView extends JFrame implements IObserver {
-
+public class PrescribirView extends JPanel implements IObserver {
+    private JPanel ContentPanel;
     private JPanel PrescribirMainPanel;
     private JPanel MainPanel;
     private JPanel ControlPanel;
@@ -26,7 +26,6 @@ public class PrescribirView extends JFrame implements IObserver {
     private JButton TrashMedButton;
     private JButton DetailsButton;
     private JPanel DatePanel;
-    private JPanel ContentPanel; // ✅ agregado
 
     private final PrescribirController controller;
 
@@ -34,18 +33,14 @@ public class PrescribirView extends JFrame implements IObserver {
         controller = new PrescribirController(new PrescripcionService());
         controller.addObserver(this);
 
-        setupFrame();
+        // Configurar este JPanel con el contenido del form
+        setLayout(new java.awt.BorderLayout());
+        if (ContentPanel != null) {
+            add(ContentPanel, java.awt.BorderLayout.CENTER);
+        }
+
         setupEvents();
         controller.listarRecetasAsync();
-    }
-
-    private void setupFrame() {
-        // ✅ usar ContentPanel como root (es el que genera el GUI Designer)
-        setContentPane(ContentPanel);
-        setTitle("Prescripción de Recetas");
-        setSize(1000, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
     }
 
     private void setupEvents() {

@@ -8,11 +8,9 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.util.List;
 
-public class MedicamentosView extends JFrame implements IObserver {
-
+public class MedicamentosView extends JPanel implements IObserver {
     private JPanel ContentPanel;
     private JPanel FormPanel;
     private JPanel FormGroupPanel;
@@ -43,17 +41,14 @@ public class MedicamentosView extends JFrame implements IObserver {
         controller = new MedicamentoController(new MedicamentoService());
         controller.addObserver(this);
 
-        setupFrame();
+        // Configurar este JPanel con el contenido del form
+        setLayout(new java.awt.BorderLayout());
+        if (ContentPanel != null) {
+            add(ContentPanel, java.awt.BorderLayout.CENTER);
+        }
+
         setupEvents();
         controller.listarMedicamentosAsync();
-    }
-
-    private void setupFrame() {
-        setContentPane(ContentPanel);
-        setTitle("Catálogo de Medicamentos");
-        setSize(950, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
     }
 
     private void setupEvents() {

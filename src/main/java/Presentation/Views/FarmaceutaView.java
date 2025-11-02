@@ -8,11 +8,9 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.util.List;
 
-public class FarmaceutaView extends JFrame implements IObserver {
-
+public class FarmaceutaView extends JPanel implements IObserver {
     private JPanel ContentPanel;
     private JPanel FormPanel;
     private JPanel FormGroupPanel;
@@ -40,17 +38,59 @@ public class FarmaceutaView extends JFrame implements IObserver {
         controller = new FarmaceutaController(new FarmaceutaService());
         controller.addObserver(this);
 
-        setupFrame();
-        setupEvents();
+        setLayout(new java.awt.BorderLayout());
+
+        if (ContentPanel == null) {
+            createManualUI();
+        } else {
+            add(ContentPanel, java.awt.BorderLayout.CENTER);
+            setupEvents();
+        }
+
         controller.listarFarmaceutasAsync();
     }
 
-    private void setupFrame() {
-        setContentPane(ContentPanel);
-        setTitle("Gestión de Farmacéutas");
-        setSize(900, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    private void createManualUI() {
+        setLayout(new java.awt.BorderLayout(10, 10));
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Formulario
+        javax.swing.JPanel formPanel = new javax.swing.JPanel(new java.awt.GridLayout(3, 2, 5, 5));
+        formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Farmacéuta"));
+
+        formPanel.add(new javax.swing.JLabel("ID:"));
+        IdTextField = new javax.swing.JTextField();
+        formPanel.add(IdTextField);
+
+        formPanel.add(new javax.swing.JLabel("Nombre:"));
+        NombreTextField = new javax.swing.JTextField();
+        formPanel.add(NombreTextField);
+
+        guardarButton = new javax.swing.JButton("Guardar");
+        borrarButton = new javax.swing.JButton("Borrar");
+        formPanel.add(guardarButton);
+        formPanel.add(borrarButton);
+
+        add(formPanel, java.awt.BorderLayout.NORTH);
+
+        // Búsqueda
+        javax.swing.JPanel searchPanel = new javax.swing.JPanel();
+        searchPanel.add(new javax.swing.JLabel("Buscar:"));
+        SearchNombreTextField = new javax.swing.JTextField(20);
+        searchPanel.add(SearchNombreTextField);
+        searchButton = new javax.swing.JButton("Buscar");
+        searchPanel.add(searchButton);
+        limpiarButton = new javax.swing.JButton("Limpiar");
+        searchPanel.add(limpiarButton);
+        reporteButton = new javax.swing.JButton("Reporte");
+        searchPanel.add(reporteButton);
+        add(searchPanel, java.awt.BorderLayout.CENTER);
+
+        // Tabla
+        table = new javax.swing.JTable();
+        add(new javax.swing.JScrollPane(table), java.awt.BorderLayout.SOUTH);
+
+        setupEvents();
     }
 
     private void setupEvents() {
