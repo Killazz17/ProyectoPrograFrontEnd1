@@ -118,8 +118,8 @@ public class MainWindow extends JFrame {
         MedicamentosView medicamentosView = new MedicamentosView();
         MainTabPanel.addTab("Medicamentos", medicamentosView);
 
-        //DashboardView dashboardView= new DashboardView();
-        //MainTabPanel.addTab("Dashboard", dashboardView);
+        DashboardView dashboardView= new DashboardView();
+        MainTabPanel.addTab("Dashboard", dashboardView);
 
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
@@ -140,6 +140,9 @@ public class MainWindow extends JFrame {
         DespachoView despachoView = new DespachoView();
         MainTabPanel.addTab("Despacho", despachoView);
 
+        DashboardView dashboardView = new DashboardView();
+        MainTabPanel.addTab("Dashboard", dashboardView);
+
         System.out.println("[MainWindow] Pestañas de médico agregadas: " + MainTabPanel.getTabCount());
     }
 
@@ -154,6 +157,9 @@ public class MainWindow extends JFrame {
 
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
+
+        DashboardView dashboardView = new DashboardView();
+        MainTabPanel.addTab("Dashboard", dashboardView);
 
         System.out.println("[MainWindow] Pestañas de farmaceuta agregadas: " + MainTabPanel.getTabCount());
     }
