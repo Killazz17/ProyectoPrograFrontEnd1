@@ -107,16 +107,16 @@ public class MainWindow extends JFrame {
 
         // ✅ Agregar los JPanel directamente (no usar getContentPane)
         PacienteView pacienteView = new PacienteView();
-        MainTabPanel.addTab("📋 Pacientes", pacienteView);
+        MainTabPanel.addTab("Pacientes", pacienteView);
 
         MedicoView medicoView = new MedicoView();
-        MainTabPanel.addTab("👨‍⚕️ Médicos", medicoView);
+        MainTabPanel.addTab("Médicos", medicoView);
 
         FarmaceutaView farmaceutaView = new FarmaceutaView();
-        MainTabPanel.addTab("💊 Farmacéutas", farmaceutaView);
+        MainTabPanel.addTab("Farmacéutas", farmaceutaView);
 
         MedicamentosView medicamentosView = new MedicamentosView();
-        MainTabPanel.addTab("💉 Medicamentos", medicamentosView);
+        MainTabPanel.addTab("Medicamentos", medicamentosView);
 
         //DashboardView dashboardView= new DashboardView();
         //MainTabPanel.addTab("Dashboard", dashboardView);
@@ -132,16 +132,13 @@ public class MainWindow extends JFrame {
         System.out.println("[MainWindow] Agregando pestañas de médico");
 
         PrescribirView prescribirView = new PrescribirView();
-        MainTabPanel.addTab("📝 Prescribir", prescribirView);
+        MainTabPanel.addTab("Prescribir", prescribirView);
 
-       // PacienteView pacienteView = new PacienteView();
-        //MainTabPanel.addTab("📋 Pacientes", pacienteView);
-
-       // DashboardView dashboardView= new DashboardView();
-//        MainTabPanel.addTab("Dashboard", dashboardView);
-//
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
+
+        DespachoView despachoView = new DespachoView();
+        MainTabPanel.addTab("Despacho", despachoView);
 
         System.out.println("[MainWindow] Pestañas de médico agregadas: " + MainTabPanel.getTabCount());
     }
@@ -150,13 +147,10 @@ public class MainWindow extends JFrame {
         System.out.println("[MainWindow] Agregando pestañas de farmaceuta");
 
         DespachoView despachoView = new DespachoView();
-        MainTabPanel.addTab("📦 Despacho", despachoView);
+        MainTabPanel.addTab("Despacho", despachoView);
 
         MedicamentosView medicamentosView = new MedicamentosView();
-        MainTabPanel.addTab("💉 Medicamentos", medicamentosView);
-
-        //DashboardView dashboardView= new DashboardView();
-        //MainTabPanel.addTab("Dashboard", dashboardView);
+        MainTabPanel.addTab("Medicamentos", medicamentosView);
 
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
@@ -167,8 +161,8 @@ public class MainWindow extends JFrame {
     private void setupPacienteTabs() {
         System.out.println("[MainWindow] Agregando pestañas de paciente");
 
-        HistoricoRecetaView historicoView = new HistoricoRecetaView();
-        MainTabPanel.addTab("📜 Mis Recetas", historicoView);
+        DespachoView despachoView = new DespachoView();
+        MainTabPanel.addTab("Despacho", despachoView);
 
         System.out.println("[MainWindow] Pestañas de paciente agregadas: " + MainTabPanel.getTabCount());
     }
