@@ -182,8 +182,9 @@ public class DespachoView extends JPanel implements IObserver {
 
             // Validar transición de estados
             if (!validarTransicionEstado(estadoActual, nuevoEstado)) {
+                String mensajeError = construirMensajeError(estadoActual, nuevoEstado);
                 JOptionPane.showMessageDialog(this,
-                        "No se puede cambiar de " + estadoActual + " a " + nuevoEstado,
+                        mensajeError,
                         "Transición Inválida",
                         JOptionPane.WARNING_MESSAGE);
                 return;
@@ -205,8 +206,12 @@ public class DespachoView extends JPanel implements IObserver {
         }
     }
 
+    /**
+     * Validación estricta de transiciones de estado
+     * Solo permite el flujo: confeccionada -> proceso -> lista -> entregada
+     */
     private boolean validarTransicionEstado(String estadoActual, String nuevoEstado) {
-        // Reglas de transición:
+        // Reglas de transición estrictas:
         // confeccionada -> proceso
         // proceso -> lista
         // lista -> entregada
@@ -216,13 +221,57 @@ public class DespachoView extends JPanel implements IObserver {
             return false; // No se puede cambiar una receta entregada
         }
 
-        // Permitir retrocesos solo para admins/farmacéutas
-        if (usuarioActual != null && "PACIENTE".equalsIgnoreCase(usuarioActual.getRol())) {
-            // Pacientes solo pueden marcar como entregada si está en estado "lista"
-            return "lista".equalsIgnoreCase(estadoActual) && "entregada".equalsIgnoreCase(nuevoEstado);
-        }
+        // Normalizar estados a minúsculas para comparación
+        String estadoActualLower = estadoActual.toLowerCase();
+        String nuevoEstadoLower = nuevoEstado.toLowerCase();
 
-        return true; // Staff puede hacer cualquier transición
+        // Validar transiciones permitidas según el flujo
+        switch (estadoActualLower) {
+            case "confeccionada":
+                // Solo puede pasar a proceso
+                return "proceso".equals(nuevoEstadoLower);
+
+            case "proceso":
+                // Solo puede pasar a lista
+                return "lista".equals(nuevoEstadoLower);
+
+            case "lista":
+                // Solo puede pasar a entregada
+                return "entregada".equals(nuevoEstadoLower);
+
+            default:
+                return false; // Estado desconocido
+        }
+    }
+
+    /**
+     * Construye un mensaje de error informativo según el estado actual
+     */
+    private String construirMensajeError(String estadoActual, String nuevoEstado) {
+        String estadoLower = estadoActual.toLowerCase();
+
+        switch (estadoLower) {
+            case "confeccionada":
+                return "Las recetas CONFECCIONADAS solo pueden pasar a estado EN PROCESO.\n\n" +
+                        "Flujo correcto: Confeccionada → Proceso → Lista → Entregada";
+
+            case "proceso":
+                return "Las recetas EN PROCESO solo pueden pasar a estado LISTA.\n\n" +
+                        "Flujo correcto: Confeccionada → Proceso → Lista → Entregada";
+
+            case "lista":
+                return "Las recetas LISTAS solo pueden pasar a estado ENTREGADA.\n\n" +
+                        "Flujo correcto: Confeccionada → Proceso → Lista → Entregada";
+
+            case "entregada":
+                return "Las recetas ENTREGADAS no pueden cambiar de estado.\n\n" +
+                        "Una vez entregada, la receta está finalizada.";
+
+            default:
+                return "No se puede cambiar de " + estadoActual.toUpperCase() +
+                        " a " + nuevoEstado.toUpperCase() + ".\n\n" +
+                        "Flujo correcto: Confeccionada → Proceso → Lista → Entregada";
+        }
     }
 
     private void mostrarDetalles() {
