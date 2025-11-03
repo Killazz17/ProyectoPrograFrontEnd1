@@ -12,23 +12,44 @@ import java.util.concurrent.ExecutionException;
 public class DespachoController extends Observable {
 
     private final DespachoService service;
+    private Integer pacienteIdFiltro = null; // null = todas las recetas
 
     public DespachoController(DespachoService service) {
         this.service = service;
     }
 
-    // === Listar todos los despachos ===
+    /**
+     * Establecer filtro por paciente (para cuando el usuario es paciente)
+     */
+    public void setPacienteFilter(int pacienteId) {
+        this.pacienteIdFiltro = pacienteId;
+    }
+
+    /**
+     * Limpiar filtro de paciente
+     */
+    public void clearPacienteFilter() {
+        this.pacienteIdFiltro = null;
+    }
+
+    // === Listar todos los despachos (o filtrados por paciente) ===
     public void listarDespachosAsync() {
         SwingWorker<List<DespachoDto>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<DespachoDto> doInBackground() throws Exception {
-                return service.getAll();
+                if (pacienteIdFiltro != null) {
+                    return service.getByPaciente(pacienteIdFiltro);
+                } else {
+                    return service.getAll();
+                }
             }
 
             @Override
             protected void done() {
                 try {
-                    notifyObservers(EventType.UPDATED, get());
+                    List<DespachoDto> despachos = get();
+                    System.out.println("[DespachoController] Despachos cargados: " + despachos.size());
+                    notifyObservers(EventType.UPDATED, despachos);
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al listar despachos", e);
                 }
@@ -49,8 +70,17 @@ public class DespachoController extends Observable {
             protected void done() {
                 try {
                     if (get()) {
+                        JOptionPane.showMessageDialog(null,
+                                "Estado actualizado correctamente",
+                                "Éxito",
+                                JOptionPane.INFORMATION_MESSAGE);
                         notifyObservers(EventType.UPDATED, null);
                         listarDespachosAsync();
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "No se pudo actualizar el estado",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al actualizar estado del despacho", e);
@@ -72,7 +102,14 @@ public class DespachoController extends Observable {
             protected void done() {
                 try {
                     DespachoDto result = get();
-                    notifyObservers(EventType.UPDATED, List.of(result));
+                    if (result != null) {
+                        notifyObservers(EventType.UPDATED, List.of(result));
+                    } else {
+                        JOptionPane.showMessageDialog(null,
+                                "No se encontró la receta con ID: " + id,
+                                "No encontrado",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al buscar despacho", e);
                 }
@@ -83,6 +120,7 @@ public class DespachoController extends Observable {
 
     private void showError(String msg, Exception e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

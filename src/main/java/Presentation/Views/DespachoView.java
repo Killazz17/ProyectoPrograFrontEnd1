@@ -1,6 +1,7 @@
 package Presentation.Views;
 
 import Domain.Dtos.DespachoDto;
+import Domain.Dtos.LoginResponseDto;
 import Presentation.Controllers.DespachoController;
 import Presentation.IObserver;
 import Services.DespachoService;
@@ -25,61 +26,278 @@ public class DespachoView extends JPanel implements IObserver {
     private JTable RecetasTable;
 
     private final DespachoController controller;
+    private LoginResponseDto usuarioActual;
 
     public DespachoView() {
+        this(null);
+    }
+
+    public DespachoView(LoginResponseDto usuario) {
+        this.usuarioActual = usuario;
         controller = new DespachoController(new DespachoService());
         controller.addObserver(this);
 
         // Configurar este JPanel con el contenido del form
-        setLayout(new java.awt.BorderLayout());
+        setLayout(new BorderLayout());
+
         if (ContentPanel != null) {
-            add(ContentPanel, java.awt.BorderLayout.CENTER);
+            add(ContentPanel, BorderLayout.CENTER);
+        } else {
+            createManualUI();
         }
 
+        configurarPermisosPorRol();
         setupEvents();
-        controller.listarDespachosAsync();
+        cargarDatos();
 
-        idField.setForeground(Color.BLACK);
+        if (idField != null) idField.setForeground(Color.BLACK);
+    }
+
+    private void createManualUI() {
+        MainContentPanel = new JPanel(new BorderLayout(10, 10));
+        MainContentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Panel superior: Búsqueda
+        BuscarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        idLabel = new JLabel("Buscar por ID:");
+        idField = new JTextField(15);
+        BuscarPanel.add(idLabel);
+        BuscarPanel.add(idField);
+        MainContentPanel.add(BuscarPanel, BorderLayout.NORTH);
+
+        // Panel central: Tabla
+        RecetasTable = new JTable();
+        RecetasTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        RecetaTablePanel = new JScrollPane(RecetasTable);
+        MainContentPanel.add(RecetaTablePanel, BorderLayout.CENTER);
+
+        // Panel inferior: Botones
+        ButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        enProcesoButton = new JButton("En Proceso");
+        enProcesoButton.setBackground(new Color(255, 200, 100));
+
+        listaButton = new JButton("Lista");
+        listaButton.setBackground(new Color(100, 200, 255));
+
+        recibirButton = new JButton("Entregada");
+        recibirButton.setBackground(new Color(100, 255, 100));
+
+        ButtonPanel.add(enProcesoButton);
+        ButtonPanel.add(listaButton);
+        ButtonPanel.add(recibirButton);
+
+        MainContentPanel.add(ButtonPanel, BorderLayout.SOUTH);
+
+        add(MainContentPanel, BorderLayout.CENTER);
+    }
+
+    private void configurarPermisosPorRol() {
+        if (usuarioActual == null) {
+            return;
+        }
+
+        String rol = usuarioActual.getRol();
+        System.out.println("[DespachoView] Configurando permisos para rol: " + rol);
+
+        if ("PACIENTE".equalsIgnoreCase(rol)) {
+            // Para pacientes: solo mostrar sus recetas y solo botón "Recibir"
+            enProcesoButton.setEnabled(false);
+            listaButton.setEnabled(false);
+            recibirButton.setEnabled(true);
+
+            // Configurar filtro por paciente (asumiendo que el ID del usuario es el ID del paciente)
+            controller.setPacienteFilter(usuarioActual.getId());
+
+            System.out.println("[DespachoView] Modo PACIENTE activado - Solo puede marcar como entregada");
+
+        } else if ("FARMACEUTA".equalsIgnoreCase(rol) || "MEDICO".equalsIgnoreCase(rol) ||
+                "ADMIN".equalsIgnoreCase(rol) || "ADMINISTRADOR".equalsIgnoreCase(rol)) {
+            // Para farmacéutas, médicos y admins: todos los botones habilitados
+            enProcesoButton.setEnabled(true);
+            listaButton.setEnabled(true);
+            recibirButton.setEnabled(true);
+
+            controller.clearPacienteFilter();
+
+            System.out.println("[DespachoView] Modo STAFF activado - Todos los botones habilitados");
+        }
+    }
+
+    private void cargarDatos() {
+        controller.listarDespachosAsync();
     }
 
     private void setupEvents() {
-        enProcesoButton.addActionListener(e -> cambiarEstadoSeleccionado("EN_PROCESO"));
-        listaButton.addActionListener(e -> cambiarEstadoSeleccionado("LISTA"));
-        recibirButton.addActionListener(e -> cambiarEstadoSeleccionado("ENTREGADA"));
+        if (enProcesoButton != null) {
+            enProcesoButton.addActionListener(e -> cambiarEstadoSeleccionado("proceso"));
+        }
 
-        idField.addActionListener(e -> {
-            try {
-                int id = Integer.parseInt(idField.getText().trim());
-                controller.buscarDespachoPorIdAsync(id);
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID inválido");
-            }
-        });
+        if (listaButton != null) {
+            listaButton.addActionListener(e -> cambiarEstadoSeleccionado("lista"));
+        }
+
+        if (recibirButton != null) {
+            recibirButton.addActionListener(e -> cambiarEstadoSeleccionado("entregada"));
+        }
+
+        if (idField != null) {
+            idField.addActionListener(e -> {
+                try {
+                    String texto = idField.getText().trim();
+                    if (texto.isEmpty()) {
+                        cargarDatos();
+                    } else {
+                        int id = Integer.parseInt(texto);
+                        controller.buscarDespachoPorIdAsync(id);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Por favor ingrese un ID válido",
+                            "ID Inválido",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+            });
+        }
+
+        // Doble clic para ver detalles
+        if (RecetasTable != null) {
+            RecetasTable.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        mostrarDetalles();
+                    }
+                }
+            });
+        }
     }
 
     private void cambiarEstadoSeleccionado(String nuevoEstado) {
+        if (RecetasTable == null) return;
+
         int fila = RecetasTable.getSelectedRow();
         if (fila != -1) {
             int id = (int) RecetasTable.getValueAt(fila, 0);
-            controller.actualizarEstadoAsync(id, nuevoEstado);
+            String estadoActual = (String) RecetasTable.getValueAt(fila, 4);
+
+            // Validar transición de estados
+            if (!validarTransicionEstado(estadoActual, nuevoEstado)) {
+                JOptionPane.showMessageDialog(this,
+                        "No se puede cambiar de " + estadoActual + " a " + nuevoEstado,
+                        "Transición Inválida",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "¿Está seguro de cambiar el estado a " + nuevoEstado.toUpperCase() + "?",
+                    "Confirmar Cambio",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.actualizarEstadoAsync(id, nuevoEstado);
+            }
         } else {
-            JOptionPane.showMessageDialog(this, "Seleccione un despacho.");
+            JOptionPane.showMessageDialog(this,
+                    "Por favor seleccione una receta de la tabla.",
+                    "Seleccionar Receta",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private boolean validarTransicionEstado(String estadoActual, String nuevoEstado) {
+        // Reglas de transición:
+        // confeccionada -> proceso
+        // proceso -> lista
+        // lista -> entregada
+        // entregada -> (no se puede cambiar)
+
+        if ("entregada".equalsIgnoreCase(estadoActual)) {
+            return false; // No se puede cambiar una receta entregada
+        }
+
+        // Permitir retrocesos solo para admins/farmacéutas
+        if (usuarioActual != null && "PACIENTE".equalsIgnoreCase(usuarioActual.getRol())) {
+            // Pacientes solo pueden marcar como entregada si está en estado "lista"
+            return "lista".equalsIgnoreCase(estadoActual) && "entregada".equalsIgnoreCase(nuevoEstado);
+        }
+
+        return true; // Staff puede hacer cualquier transición
+    }
+
+    private void mostrarDetalles() {
+        if (RecetasTable == null) return;
+
+        int fila = RecetasTable.getSelectedRow();
+        if (fila != -1) {
+            int id = (int) RecetasTable.getValueAt(fila, 0);
+            String paciente = (String) RecetasTable.getValueAt(fila, 1);
+            String fechaConf = (String) RecetasTable.getValueAt(fila, 2);
+            String fechaRet = (String) RecetasTable.getValueAt(fila, 3);
+            String estado = (String) RecetasTable.getValueAt(fila, 4);
+            int cantMeds = (int) RecetasTable.getValueAt(fila, 5);
+
+            String detalles = String.format(
+                    "DETALLES DE LA RECETA\n\n" +
+                            "ID: %d\n" +
+                            "Paciente: %s\n" +
+                            "Fecha Confección: %s\n" +
+                            "Fecha Retiro: %s\n" +
+                            "Estado: %s\n" +
+                            "Cantidad Medicamentos: %d",
+                    id, paciente, fechaConf, fechaRet, estado, cantMeds
+            );
+
+            JOptionPane.showMessageDialog(this,
+                    detalles,
+                    "Detalle de Receta #" + id,
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
     @Override
     public void update(EventType eventType, Object data) {
-        if (eventType == EventType.UPDATED) {
+        if (eventType == EventType.UPDATED && data instanceof List) {
             actualizarTabla((List<DespachoDto>) data);
         }
     }
 
     private void actualizarTabla(List<DespachoDto> despachos) {
         if (despachos == null) return;
-        DefaultTableModel model = new DefaultTableModel(new Object[]{"ID", "Receta", "Estado"}, 0);
+
+        DefaultTableModel model = new DefaultTableModel(
+                new Object[]{"ID", "Paciente", "F. Confección", "F. Retiro", "Estado", "# Meds"},
+                0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         for (DespachoDto d : despachos) {
-            model.addRow(new Object[]{d.getId(), d.getIdReceta(), d.getEstado()});
+            model.addRow(new Object[]{
+                    d.getId(),
+                    d.getNombrePaciente(),
+                    d.getFechaConfeccion(),
+                    d.getFechaRetiro(),
+                    d.getEstado().toUpperCase(),
+                    d.getCantidadMedicamentos()
+            });
         }
+
         RecetasTable.setModel(model);
+
+        // Ajustar anchos de columna
+        if (RecetasTable.getColumnModel().getColumnCount() > 0) {
+            RecetasTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // ID
+            RecetasTable.getColumnModel().getColumn(1).setPreferredWidth(150); // Paciente
+            RecetasTable.getColumnModel().getColumn(2).setPreferredWidth(100); // F. Confección
+            RecetasTable.getColumnModel().getColumn(3).setPreferredWidth(100); // F. Retiro
+            RecetasTable.getColumnModel().getColumn(4).setPreferredWidth(100); // Estado
+            RecetasTable.getColumnModel().getColumn(5).setPreferredWidth(70);  // # Meds
+        }
+
+        System.out.println("[DespachoView] Tabla actualizada con " + despachos.size() + " recetas");
     }
 }

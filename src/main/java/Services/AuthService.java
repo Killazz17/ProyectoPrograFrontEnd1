@@ -25,24 +25,26 @@ public class AuthService extends BaseService {
 
         ResponseDto res = sendRequest(req);
         if (res == null) {
-            return new LoginResponseDto(false, "", "", "No se pudo conectar con el servidor");
+            return new LoginResponseDto(false, 0, "", "", "No se pudo conectar con el servidor");
         }
 
         if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
             try {
                 com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
 
+                int id = jsonObject.get("id").getAsInt();           // ✅ OBTENER ID
                 String nombreUsuario = jsonObject.get("nombre").getAsString();
                 String rol = jsonObject.get("rol").getAsString();
 
-                return new LoginResponseDto(true, nombreUsuario, rol, "Login exitoso");
+                return new LoginResponseDto(true, id, nombreUsuario, rol, "Login exitoso");
             } catch (Exception e) {
                 System.err.println("[AuthService] Error al interpretar respuesta: " + e.getMessage());
-                return new LoginResponseDto(false, "", "", "Error al interpretar la respuesta del servidor");
+                e.printStackTrace();
+                return new LoginResponseDto(false, 0, "", "", "Error al interpretar la respuesta del servidor");
             }
         }
 
-        return new LoginResponseDto(false, "", "", res.getMessage());
+        return new LoginResponseDto(false, 0, "", "", res.getMessage());
     }
 
     /**
@@ -54,24 +56,26 @@ public class AuthService extends BaseService {
 
         ResponseDto res = sendRequest(req);
         if (res == null) {
-            return new LoginResponseDto(false, "", "", "No se pudo conectar con el servidor");
+            return new LoginResponseDto(false, 0, "", "", "No se pudo conectar con el servidor");
         }
 
         if (res.isSuccess() && res.getData() != null && !res.getData().isEmpty()) {
             try {
                 com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
 
+                int id = jsonObject.get("id").getAsInt();
                 String nombre = jsonObject.get("nombre").getAsString();
                 String rol = jsonObject.get("rol").getAsString();
 
-                return new LoginResponseDto(true, nombre, rol, "Login exitoso");
+                return new LoginResponseDto(true, id, nombre, rol, "Login exitoso");
             } catch (Exception e) {
                 System.err.println("[AuthService] Error al interpretar respuesta: " + e.getMessage());
-                return new LoginResponseDto(false, "", "", "Error al interpretar la respuesta del servidor");
+                e.printStackTrace();
+                return new LoginResponseDto(false, 0, "", "", "Error al interpretar la respuesta del servidor");
             }
         }
 
-        return new LoginResponseDto(false, "", "", res.getMessage());
+        return new LoginResponseDto(false, 0, "", "", res.getMessage());
     }
 
     /**

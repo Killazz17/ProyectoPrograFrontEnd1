@@ -137,7 +137,7 @@ public class MainWindow extends JFrame {
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
 
-        DespachoView despachoView = new DespachoView();
+        DespachoView despachoView = new DespachoView(usuario);
         MainTabPanel.addTab("Despacho", despachoView);
 
         DashboardView dashboardView = new DashboardView();
@@ -149,7 +149,7 @@ public class MainWindow extends JFrame {
     private void setupFarmaceutaTabs() {
         System.out.println("[MainWindow] Agregando pestañas de farmaceuta");
 
-        DespachoView despachoView = new DespachoView();
+        DespachoView despachoView = new DespachoView(usuario);
         MainTabPanel.addTab("Despacho", despachoView);
 
         MedicamentosView medicamentosView = new MedicamentosView();
@@ -167,7 +167,7 @@ public class MainWindow extends JFrame {
     private void setupPacienteTabs() {
         System.out.println("[MainWindow] Agregando pestañas de paciente");
 
-        DespachoView despachoView = new DespachoView();
+        DespachoView despachoView = new DespachoView(usuario);
         MainTabPanel.addTab("Despacho", despachoView);
 
         System.out.println("[MainWindow] Pestañas de paciente agregadas: " + MainTabPanel.getTabCount());
