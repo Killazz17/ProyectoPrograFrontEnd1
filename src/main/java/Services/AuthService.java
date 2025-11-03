@@ -79,6 +79,36 @@ public class AuthService extends BaseService {
     }
 
     /**
+     * Cambiar contraseña
+     */
+    public boolean changePassword(String nombreUsuario, String claveActual, String claveNueva) {
+        try {
+            String jsonData = String.format(
+                    "{\"nombreUsuario\":\"%s\",\"claveActual\":\"%s\",\"claveNueva\":\"%s\"}",
+                    nombreUsuario, claveActual, claveNueva
+            );
+
+            RequestDto req = new RequestDto("Auth", "changePassword", jsonData, null);
+            ResponseDto res = sendRequest(req);
+
+            if (res == null) {
+                System.err.println("[AuthService] No se recibió respuesta del servidor");
+                return false;
+            }
+
+            System.out.println("[AuthService] Cambio de contraseña: " +
+                    (res.isSuccess() ? "ÉXITO" : "FALLO") + " - " + res.getMessage());
+
+            return res.isSuccess();
+
+        } catch (Exception e) {
+            System.err.println("[AuthService] Error al cambiar contraseña: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
      * Envía solicitud de cierre de sesión
      */
     public boolean logout(String token) {

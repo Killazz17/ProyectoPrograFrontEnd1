@@ -18,6 +18,7 @@ public class Main {
             LoginController loginController = new LoginController(loginView, authService);
             loginController.addObserver(loginView);
             loginView.setController(loginController);
+            loginView.setAuthService(authService);
 
             loginView.setVisible(true);
         });
