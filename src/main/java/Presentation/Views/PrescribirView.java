@@ -1,6 +1,7 @@
 package Presentation.Views;
 
 import Domain.Dtos.RecetaDto;
+import Presentation.Controllers.PacienteController;
 import Presentation.Controllers.PrescribirController;
 import Presentation.IObserver;
 import Services.PrescripcionService;
