@@ -11,7 +11,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class LoginView extends JFrame implements IObserver {
-    // Componentes generados por el .form
     private JPanel ContentPane;
     private JPanel ImagePane;
     private JPanel LoginForm;
@@ -38,16 +37,10 @@ public class LoginView extends JFrame implements IObserver {
         PasswordField.setForeground(Color.BLACK);
     }
 
-    /**
-     * Establece el controlador para esta vista
-     */
     public void setController(Presentation.Controllers.LoginController controller) {
         this.controller = controller;
     }
 
-    /**
-     * Establece el servicio de autenticación
-     */
     public void setAuthService(AuthService authService) {
         this.authService = authService;
     }
@@ -62,17 +55,13 @@ public class LoginView extends JFrame implements IObserver {
     }
 
     private void setupListeners() {
-        // Botón Ingresar
         LogginButton.addActionListener(e -> performLogin());
 
-        // Botón Limpiar
         CleanFieldsButton.addActionListener(e -> clearFields());
 
-        // Botón Cambiar Contraseña - AHORA HABILITADO
         ChangePasswordButton.setEnabled(true);
         ChangePasswordButton.addActionListener(e -> openChangePassword());
 
-        // Enter en el campo de password ejecuta login
         PasswordField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -82,7 +71,6 @@ public class LoginView extends JFrame implements IObserver {
             }
         });
 
-        // Enter en el campo de usuario mueve el foco a password
         UserField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -96,7 +84,7 @@ public class LoginView extends JFrame implements IObserver {
     private void openChangePassword() {
         if (authService == null) {
             JOptionPane.showMessageDialog(this,
-                    "Error: Servicio de autenticación no configurado",
+                    "Error: Servicio de autenticacion no configurado",
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
@@ -109,7 +97,7 @@ public class LoginView extends JFrame implements IObserver {
     private void performLogin() {
         if (controller == null) {
             JOptionPane.showMessageDialog(this, "Error: No se ha configurado el controlador",
-                    "Error de configuración", JOptionPane.ERROR_MESSAGE);
+                    "Error de configuracion", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -136,7 +124,6 @@ public class LoginView extends JFrame implements IObserver {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                // ✅ Usar loginByNombre para login con nombre de usuario
                 controller.loginByNombre(usuario, clave);
                 return null;
             }
@@ -154,7 +141,6 @@ public class LoginView extends JFrame implements IObserver {
         if (response.isSuccess()) {
             this.responseData = response;
 
-            // Mostrar mensaje de bienvenida
             String mensaje = String.format(
                     "¡Bienvenido!\n\nUsuario: %s\nRol: %s",
                     response.getNombre(),
@@ -168,7 +154,6 @@ public class LoginView extends JFrame implements IObserver {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            // Abrir ventana principal
             SwingUtilities.invokeLater(() -> {
                 MainWindow mainWindow = new MainWindow(response);
                 mainWindow.setVisible(true);
@@ -202,22 +187,15 @@ public class LoginView extends JFrame implements IObserver {
         PasswordField.setEnabled(enabled);
     }
 
-    /**
-     * Implementación del método update de IObserver
-     * Se invoca cuando el controlador notifica cambios
-     */
     @Override
     public void update(EventType eventType, Object data) {
         if (data instanceof LoginResponseDto) {
             LoginResponseDto response = (LoginResponseDto) data;
 
-            // Ejecutar en el Event Dispatch Thread
             SwingUtilities.invokeLater(() -> {
                 if (eventType == EventType.CREATED) {
-                    // Login exitoso
                     handleLoginResponse(response);
                 } else if (eventType == EventType.DELETED) {
-                    // Login fallido
                     handleLoginResponse(response);
                 }
             });

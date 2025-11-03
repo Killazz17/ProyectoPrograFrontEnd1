@@ -16,9 +16,6 @@ public class DespachoService extends BaseService {
         super(host, port);
     }
 
-    /**
-     * Obtener todas las recetas (despachos)
-     */
     public List<DespachoDto> getAll() {
         RequestDto req = new RequestDto("Recetas", "getAllRecetasDespacho", null, null);
         ResponseDto res = sendRequest(req);
@@ -34,9 +31,6 @@ public class DespachoService extends BaseService {
         return List.of();
     }
 
-    /**
-     * Obtener recetas por paciente
-     */
     public List<DespachoDto> getByPaciente(int pacienteId) {
         RequestDto req = new RequestDto("Recetas", "getRecetasByPaciente", gson.toJson(pacienteId), null);
         ResponseDto res = sendRequest(req);
@@ -51,11 +45,7 @@ public class DespachoService extends BaseService {
         return List.of();
     }
 
-    /**
-     * Actualizar estado de una receta
-     */
     public boolean updateState(int recetaId, String nuevoEstado) {
-        // Crear un objeto con los datos necesarios
         String data = String.format("{\"idReceta\":%d,\"estado\":\"%s\"}", recetaId, nuevoEstado);
 
         RequestDto req = new RequestDto("Recetas", "updateEstado", data, null);
@@ -64,9 +54,6 @@ public class DespachoService extends BaseService {
         return res != null && res.isSuccess();
     }
 
-    /**
-     * Buscar receta por ID
-     */
     public DespachoDto getById(int id) {
         RequestDto req = new RequestDto("Recetas", "getRecetaById", gson.toJson(id), null);
         ResponseDto res = sendRequest(req);

@@ -4,16 +4,12 @@ package Domain.Dtos;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * DTO que incluye los medicamentos para el dashboard
- * ACTUALIZADO: Coincide con RecetaDetalladaResponseDto del backend
- */
 public class RecetaDetalladaDto implements Serializable {
     private int id;
     private int idPaciente;
     private int idMedico;
-    private String fechaConfeccion; // ✅ Cambiado de "fecha" a "fechaConfeccion"
-    private String fechaRetiro;     // ✅ Agregado
+    private String fechaConfeccion;
+    private String fechaRetiro;
     private String estado;
     private List<MedicamentoPrescritoDto> medicamentos;
 

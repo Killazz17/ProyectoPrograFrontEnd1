@@ -6,9 +6,6 @@ import Domain.Dtos.ResponseDto;
 import com.google.gson.reflect.TypeToken;
 import java.util.List;
 
-/**
- * Servicio para obtener medicamentos prescritos con información detallada
- */
 public class MedicamentoPrescritoService extends BaseService {
 
     public MedicamentoPrescritoService() {
@@ -19,10 +16,6 @@ public class MedicamentoPrescritoService extends BaseService {
         super(host, port);
     }
 
-    /**
-     * Obtiene todos los medicamentos prescritos con información detallada
-     * Incluye: nombre del medicamento, cantidad, fecha de confección, etc.
-     */
     public List<MedicamentoPrescritoDetalladoDto> getAllDetallados() {
         RequestDto req = new RequestDto("MedicamentosPrescritos", "getAllDetallados", null, null);
         ResponseDto res = sendRequest(req);
@@ -33,9 +26,6 @@ public class MedicamentoPrescritoService extends BaseService {
                         res.getData(),
                         new TypeToken<List<MedicamentoPrescritoDetalladoDto>>() {}.getType()
                 );
-
-                System.out.println("[MedicamentoPrescritoService] Medicamentos recibidos: "
-                        + resultado.size());
 
                 return resultado;
             } catch (Exception e) {

@@ -42,7 +42,6 @@ public class ChangePasswordView extends JDialog {
             setContentPane(ContentPane);
         }
 
-        // Configurar colores de texto
         if (UserField != null) UserField.setForeground(Color.BLACK);
         if (ActualPasswordField != null) ActualPasswordField.setForeground(Color.BLACK);
         if (NewPasswordField != null) NewPasswordField.setForeground(Color.BLACK);
@@ -52,19 +51,16 @@ public class ChangePasswordView extends JDialog {
         ContentPane = new JPanel(new BorderLayout(10, 10));
         ContentPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Panel del título
         TittleLabelPanel = new JPanel();
         ChangePasswordLabel = new JLabel("Cambio de Contraseña");
         ChangePasswordLabel.setFont(new Font("Dialog", Font.BOLD, 16));
         TittleLabelPanel.add(ChangePasswordLabel);
 
-        // Panel del formulario
         FormPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Usuario
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
@@ -77,7 +73,6 @@ public class ChangePasswordView extends JDialog {
         UserField.setForeground(Color.BLACK);
         FormPanel.add(UserField, gbc);
 
-        // Contraseña actual
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
@@ -90,7 +85,6 @@ public class ChangePasswordView extends JDialog {
         ActualPasswordField.setForeground(Color.BLACK);
         FormPanel.add(ActualPasswordField, gbc);
 
-        // Nueva contraseña
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0;
@@ -103,14 +97,12 @@ public class ChangePasswordView extends JDialog {
         NewPasswordField.setForeground(Color.BLACK);
         FormPanel.add(NewPasswordField, gbc);
 
-        // Panel de botones
         ButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         AcceptButton = new JButton("Aceptar");
         CancelButton = new JButton("Cancelar");
         ButtonPanel.add(AcceptButton);
         ButtonPanel.add(CancelButton);
 
-        // Agregar todo al ContentPane
         ContentPane.add(TittleLabelPanel, BorderLayout.NORTH);
         ContentPane.add(FormPanel, BorderLayout.CENTER);
         ContentPane.add(ButtonPanel, BorderLayout.SOUTH);
@@ -129,7 +121,6 @@ public class ChangePasswordView extends JDialog {
         AcceptButton.addActionListener(e -> cambiarContrasena());
         CancelButton.addActionListener(e -> dispose());
 
-        // Enter en la nueva contraseña ejecuta el cambio
         NewPasswordField.addActionListener(e -> cambiarContrasena());
     }
 
@@ -138,7 +129,6 @@ public class ChangePasswordView extends JDialog {
         String claveActual = new String(ActualPasswordField.getPassword());
         String claveNueva = new String(NewPasswordField.getPassword());
 
-        // Validaciones
         if (usuario.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Por favor ingrese su nombre de usuario",
@@ -184,12 +174,10 @@ public class ChangePasswordView extends JDialog {
             return;
         }
 
-        // Deshabilitar botones mientras se procesa
         AcceptButton.setEnabled(false);
         CancelButton.setEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        // Ejecutar en un hilo separado
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
             protected Boolean doInBackground() {
@@ -207,14 +195,13 @@ public class ChangePasswordView extends JDialog {
 
                     if (success) {
                         JOptionPane.showMessageDialog(ChangePasswordView.this,
-                                "✅ Contraseña cambiada exitosamente\n\n" +
-                                        "Por favor, use su nueva contraseña en el próximo inicio de sesión.",
+                                "Contraseña cambiada exitosamente\n\n",
                                 "Éxito",
                                 JOptionPane.INFORMATION_MESSAGE);
                         dispose();
                     } else {
                         JOptionPane.showMessageDialog(ChangePasswordView.this,
-                                "❌ Error al cambiar la contraseña\n\n" +
+                                "Error al cambiar la contraseña\n\n" +
                                         "Verifique que su usuario y contraseña actual sean correctos.",
                                 "Error",
                                 JOptionPane.ERROR_MESSAGE);

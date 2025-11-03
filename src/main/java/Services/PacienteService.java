@@ -9,7 +9,7 @@ import java.util.List;
 public class PacienteService extends BaseService {
 
     public PacienteService() {
-        super(); // Usa localhost:7070 por defecto
+        super();
     }
 
     public PacienteService(String host, int port) {
@@ -17,7 +17,6 @@ public class PacienteService extends BaseService {
     }
 
     public List<PacienteDto> getAll() {
-        // IMPORTANTE: El backend espera "Pacientes" (plural)
         RequestDto req = new RequestDto("Pacientes", "getAllPacientes", null, null);
         ResponseDto res = sendRequest(req);
         if (res != null && res.isSuccess() && res.getData() != null) {
@@ -37,7 +36,7 @@ public class PacienteService extends BaseService {
         ResponseDto res = sendRequest(req);
 
         if (res != null && res.isSuccess()) {
-            return dto; // El backend solo confirma, devolvemos el DTO original
+            return dto;
         }
         return null;
     }
@@ -49,7 +48,6 @@ public class PacienteService extends BaseService {
     }
 
     public List<PacienteDto> searchByName(String nombre) {
-        // El backend no tiene este endpoint aún, simulamos búsqueda local
         List<PacienteDto> todos = getAll();
         return todos.stream()
                 .filter(p -> p.getNombre().toLowerCase().contains(nombre.toLowerCase()))

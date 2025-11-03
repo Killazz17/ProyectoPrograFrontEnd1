@@ -7,74 +7,85 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-/**
- * Modelo de gráfico de líneas que trabaja directamente con medicamentos prescritos
- */
 public class RecetaLineChartModel extends DefaultCategoryDataset {
 
     public void mapData(List<MedicamentoPrescritoDetalladoDto> medicamentosPrescritos,
                         String medicamentoFiltro) {
+
         clear();
 
         if (medicamentosPrescritos == null || medicamentosPrescritos.isEmpty()) {
-            System.out.println("[RecetaLineChartModel] No hay medicamentos prescritos para procesar");
             return;
         }
 
-        System.out.println("[RecetaLineChartModel] ====== PROCESANDO DATOS ======");
-        System.out.println("[RecetaLineChartModel] Medicamentos prescritos: "
-                + medicamentosPrescritos.size());
-        System.out.println("[RecetaLineChartModel] Medicamento filtro: " + medicamentoFiltro);
-
-        // Mapa: Mes -> Cantidad
         Map<String, Integer> cantidadPorMes = new TreeMap<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        int medicamentosEncontrados = 0;
+        int medicamentosIgnorados = 0;
 
         for (MedicamentoPrescritoDetalladoDto mp : medicamentosPrescritos) {
-            if (mp.getFechaConfeccion() == null || mp.getMedicamentoNombre() == null) {
-                System.out.println("[RecetaLineChartModel] Medicamento prescrito sin fecha o nombre");
+            if (mp.getFechaConfeccion() == null) {
+                medicamentosIgnorados++;
                 continue;
             }
 
-            // Verificar si coincide con el filtro
-            if (!mp.getMedicamentoNombre().equalsIgnoreCase(medicamentoFiltro)) {
+            if (mp.getMedicamentoNombre() == null) {
+                medicamentosIgnorados++;
                 continue;
             }
+
+            if (!mp.getMedicamentoNombre().trim().equalsIgnoreCase(medicamentoFiltro.trim())) {
+                continue;
+            }
+
+            medicamentosEncontrados++;
 
             try {
-                LocalDate fecha = LocalDate.parse(mp.getFechaConfeccion(), formatter);
+                LocalDate fecha = LocalDate.parse(mp.getFechaConfeccion().trim(), inputFormatter);
+
                 String mes = String.format("%d-%02d", fecha.getYear(), fecha.getMonthValue());
 
-                System.out.println("[RecetaLineChartModel] Procesando: "
-                        + mp.getMedicamentoNombre() + " - Fecha: " + fecha + " - Mes: " + mes);
+                String mesDisplay = String.format("%s %d",
+                        obtenerNombreMes(fecha.getMonthValue()),
+                        fecha.getYear()
+                );
 
                 int cantidadActual = cantidadPorMes.getOrDefault(mes, 0);
                 int nuevaCantidad = cantidadActual + mp.getCantidad();
                 cantidadPorMes.put(mes, nuevaCantidad);
 
-                System.out.println("[RecetaLineChartModel]   ✓ Cantidad: "
-                        + mp.getCantidad() + " (Total mes: " + nuevaCantidad + ")");
-
             } catch (Exception e) {
-                System.err.println("[RecetaLineChartModel] Error al procesar medicamento prescrito "
-                        + mp.getId() + ": " + e.getMessage());
+                System.err.println("[RecetaLineChartModel] Error al procesar medicamento " +
+                        mp.getId() + ": " + e.getMessage());
                 e.printStackTrace();
+                medicamentosIgnorados++;
             }
         }
 
-        System.out.println("[RecetaLineChartModel] Datos por mes: " + cantidadPorMes);
-
-        // Agregar datos al dataset
         if (cantidadPorMes.isEmpty()) {
-            System.out.println("[RecetaLineChartModel] ⚠️ No hay datos para mostrar");
+            System.out.println("[RecetaLineChartModel] No hay datos para mostrar despues del filtrado");
         } else {
             for (Map.Entry<String, Integer> entry : cantidadPorMes.entrySet()) {
-                addValue(entry.getValue(), medicamentoFiltro, entry.getKey());
-                System.out.println("[RecetaLineChartModel] Agregado: "
-                        + entry.getKey() + " = " + entry.getValue());
+                String mes = entry.getKey();
+                Integer cantidad = entry.getValue();
+
+                String[] partes = mes.split("-");
+                int anio = Integer.parseInt(partes[0]);
+                int mesNum = Integer.parseInt(partes[1]);
+                String mesDisplay = String.format("%s %d", obtenerNombreMes(mesNum), anio);
+
+                addValue(cantidad, medicamentoFiltro, mesDisplay);
             }
         }
 
-        System.out.println("[RecetaLineChartModel] ====== FIN PROCESAMIENTO ======");
+    }
+
+    private String obtenerNombreMes(int mes) {
+        String[] meses = {
+                "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+                "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+        };
+        return meses[mes - 1];
     }
 }

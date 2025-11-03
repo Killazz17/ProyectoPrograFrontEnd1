@@ -51,7 +51,6 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
         MainPanel = new JPanel(new BorderLayout(10, 10));
         MainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel superior: Filtros
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         FilterByLabel = new JLabel("Filtrar por:");
         FilterByComboBox = new JComboBox<>(new String[]{"Nombre", "Código"});
@@ -60,23 +59,19 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
         topPanel.add(FilterByComboBox);
         topPanel.add(FilterByTextField);
 
-        // Tabla
         AddPillTable = new JTable();
         PillScrollPanel = new JScrollPane(AddPillTable);
 
-        // Panel inferior: Botones
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         OkButton = new JButton("Aceptar");
         try {
             OkButton.setIcon(new ImageIcon(getClass().getResource("/icons/check-mark.png")));
         } catch (Exception e) {
-            // Si no hay icono, continuar sin él
         }
         CancelButton = new JButton("Cancelar");
         try {
             CancelButton.setIcon(new ImageIcon(getClass().getResource("/icons/close.png")));
         } catch (Exception e) {
-            // Si no hay icono, continuar sin él
         }
         bottomPanel.add(OkButton);
         bottomPanel.add(CancelButton);
@@ -95,10 +90,8 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
     }
 
     private void setupEvents() {
-        // Búsqueda en tiempo real
         FilterByTextField.addActionListener(e -> buscarMedicamento());
 
-        // Doble clic en la tabla para seleccionar
         AddPillTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -108,10 +101,8 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
             }
         });
 
-        // Botón OK
         OkButton.addActionListener(e -> seleccionarYConfigurar());
 
-        // Botón Cancelar
         CancelButton.addActionListener(e -> {
             seleccionConfirmada = false;
             medicamentoSeleccionado = null;
@@ -141,12 +132,10 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
             return;
         }
 
-        // Obtener datos del medicamento seleccionado
         String codigo = (String) AddPillTable.getValueAt(fila, 0);
         String nombre = (String) AddPillTable.getValueAt(fila, 1);
         String presentacion = (String) AddPillTable.getValueAt(fila, 2);
 
-        // Mostrar diálogo para configurar cantidad, duración e indicaciones
         JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -182,7 +171,6 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
                 indicaciones = "Tomar según indicaciones médicas";
             }
 
-            // Crear el DTO del medicamento prescrito
             medicamentoSeleccionado = new MedicamentoPrescritoDto(
                     codigo,
                     cantidad,
@@ -190,7 +178,6 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
                     indicaciones
             );
 
-            // Guardar también el nombre para mostrarlo en la vista principal
             medicamentoSeleccionado.setNombre(nombre);
             medicamentoSeleccionado.setPresentacion(presentacion);
 
@@ -228,7 +215,6 @@ public class AgregarMedicamentoView extends JDialog implements IObserver {
         AddPillTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
-    // Métodos públicos para obtener el resultado
     public MedicamentoPrescritoDto getMedicamentoSeleccionado() {
         return medicamentoSeleccionado;
     }

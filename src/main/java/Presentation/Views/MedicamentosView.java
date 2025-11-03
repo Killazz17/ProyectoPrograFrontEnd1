@@ -42,7 +42,6 @@ public class MedicamentosView extends JPanel implements IObserver {
         controller = new MedicamentoController(new MedicamentoService());
         controller.addObserver(this);
 
-        // Configurar este JPanel con el contenido del form
         setLayout(new java.awt.BorderLayout());
         if (ContentPanel != null) {
             add(ContentPanel, java.awt.BorderLayout.CENTER);
@@ -91,7 +90,7 @@ public class MedicamentosView extends JPanel implements IObserver {
         });
 
         reporteButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aún no implementada.")
+                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aun no implementada.")
         );
     }
 
@@ -112,7 +111,7 @@ public class MedicamentosView extends JPanel implements IObserver {
     }
 
     private void actualizarTabla(List<MedicamentoDto> medicamentos) {
-        DefaultTableModel model = new DefaultTableModel(new Object[]{"Código", "Nombre", "Descripción"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"Codigo", "Nombre", "Descripcion"}, 0);
         for (MedicamentoDto m : medicamentos) {
             model.addRow(new Object[]{m.getCodigo(), m.getNombre(), m.getDescripcion()});
         }

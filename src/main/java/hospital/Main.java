@@ -3,13 +3,8 @@ package hospital;
 import Presentation.Controllers.LoginController;
 import Presentation.Views.LoginView;
 import Services.AuthService;
-
 import javax.swing.*;
 
-/**
- * Punto de entrada principal de la aplicación del Hospital.
- * Inicia la interfaz gráfica con la pantalla de login.
- */
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

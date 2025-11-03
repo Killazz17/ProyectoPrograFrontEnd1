@@ -17,7 +17,6 @@ public class HistoricoRecetaController extends Observable {
         this.service = service;
     }
 
-    // === Listar recetas del paciente ===
     public void listarHistoricoAsync() {
         SwingWorker<List<HistoricoRecetaDto>, Void> worker = new SwingWorker<>() {
             @Override
@@ -37,7 +36,6 @@ public class HistoricoRecetaController extends Observable {
         worker.execute();
     }
 
-    // === Buscar receta filtrando por texto ===
     public void buscarHistoricoAsync(String filtro) {
         SwingWorker<List<HistoricoRecetaDto>, Void> worker = new SwingWorker<>() {
             @Override

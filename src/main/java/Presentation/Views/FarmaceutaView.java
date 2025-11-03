@@ -59,9 +59,8 @@ public class FarmaceutaView extends JPanel implements IObserver {
         setLayout(new java.awt.BorderLayout(10, 10));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Formulario
         javax.swing.JPanel formPanel = new javax.swing.JPanel(new java.awt.GridLayout(3, 2, 5, 5));
-        formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Farmacéuta"));
+        formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Farmaceuta"));
 
         formPanel.add(new javax.swing.JLabel("ID:"));
         IdTextField = new javax.swing.JTextField();
@@ -78,7 +77,6 @@ public class FarmaceutaView extends JPanel implements IObserver {
 
         add(formPanel, java.awt.BorderLayout.NORTH);
 
-        // Búsqueda
         javax.swing.JPanel searchPanel = new javax.swing.JPanel();
         searchPanel.add(new javax.swing.JLabel("Buscar:"));
         SearchNombreTextField = new javax.swing.JTextField(20);
@@ -91,7 +89,6 @@ public class FarmaceutaView extends JPanel implements IObserver {
         searchPanel.add(reporteButton);
         add(searchPanel, java.awt.BorderLayout.CENTER);
 
-        // Tabla
         table = new javax.swing.JTable();
         add(new javax.swing.JScrollPane(table), java.awt.BorderLayout.SOUTH);
 
@@ -112,7 +109,7 @@ public class FarmaceutaView extends JPanel implements IObserver {
                 FarmaceutaDto dto = new FarmaceutaDto(id, nombre);
                 controller.crearFarmaceutaAsync(dto);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID inválido.");
+                JOptionPane.showMessageDialog(this, "ID invalido.");
             }
         });
 
@@ -135,7 +132,7 @@ public class FarmaceutaView extends JPanel implements IObserver {
         });
 
         reporteButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aún no implementada.")
+                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aun no implementada.")
         );
     }
 

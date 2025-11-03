@@ -17,8 +17,6 @@ public class HistoricoRecetaService extends BaseService {
     }
 
     public List<HistoricoRecetaDto> getAll() {
-        // El backend no tiene un controlador de Historico aún
-        System.out.println("[HistoricoRecetaService] ADVERTENCIA: Backend no tiene controlador Historico");
         return List.of();
     }
 

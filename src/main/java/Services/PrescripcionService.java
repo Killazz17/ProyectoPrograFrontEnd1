@@ -18,24 +18,17 @@ public class PrescripcionService extends BaseService {
     }
 
     public List<RecetaDto> getAll() {
-        // El backend no tiene un endpoint para listar todas las recetas aún
-        System.out.println("[PrescripcionService] ADVERTENCIA: Backend no tiene endpoint getAll para recetas");
         return List.of();
     }
 
-    /**
-     * Crear receta usando RecetaCreateDto (formato del backend)
-     */
     public boolean create(RecetaCreateDto dto) {
         try {
             String jsonData = gson.toJson(dto);
-            System.out.println("[PrescripcionService] Enviando receta: " + jsonData);
 
             RequestDto req = new RequestDto("Recetas", "createReceta", jsonData, null);
             ResponseDto res = sendRequest(req);
 
             if (res != null) {
-                System.out.println("[PrescripcionService] Respuesta recibida: success=" + res.isSuccess() + ", message=" + res.getMessage());
                 return res.isSuccess();
             }
 
@@ -50,7 +43,6 @@ public class PrescripcionService extends BaseService {
     }
 
     public boolean delete(int id) {
-        System.out.println("[PrescripcionService] ADVERTENCIA: Backend no tiene endpoint delete para recetas");
         return false;
     }
 }

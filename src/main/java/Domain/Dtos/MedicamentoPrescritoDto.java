@@ -2,16 +2,12 @@ package Domain.Dtos;
 
 import java.io.Serializable;
 
-/**
- * DTO para los medicamentos dentro de una receta
- */
 public class MedicamentoPrescritoDto implements Serializable {
     private String codigo;
     private int cantidad;
     private int duracion;
     private String indicaciones;
 
-    // Campos adicionales para mostrar en la UI (no se envían al backend)
     private transient String nombre;
     private transient String presentacion;
 

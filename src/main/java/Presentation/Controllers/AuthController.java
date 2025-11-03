@@ -4,10 +4,6 @@ import Domain.Dtos.LoginRequestDto;
 import Domain.Dtos.LoginResponseDto;
 import Services.AuthService;
 
-/**
- * AuthController actúa como intermediario entre la vista (LoginView)
- * y el servicio AuthService que se comunica con el backend.
- */
 public class AuthController {
     private final AuthService authService;
 

@@ -27,7 +27,6 @@ public class DashboardController extends Observable {
             protected void done() {
                 try {
                     List<MedicamentoPrescritoDetalladoDto> datos = get();
-                    System.out.println("[DashboardController] Datos cargados: " + datos.size());
                     notifyObservers(EventType.UPDATED, datos);
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al cargar datos del dashboard", e);

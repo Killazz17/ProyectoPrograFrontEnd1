@@ -7,10 +7,6 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.function.Consumer;
 
-/**
- * Service for receiving broadcast messages from the server (port 7001).
- * This connection stays open and listens for incoming messages.
- */
 public class MessageService {
     private final String host;
     private final int port;

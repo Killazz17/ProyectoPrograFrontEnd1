@@ -45,10 +45,8 @@ public class PacienteView extends JPanel implements IObserver {
         controller = new PacienteController(new PacienteService());
         controller.addObserver(this);
 
-        // Configurar este JPanel con el contenido del form
         setLayout(new java.awt.BorderLayout());
 
-        // ✅ Si los componentes no se inicializaron, crear UI manualmente
         if (ContentPanel == null) {
             createManualUI();
         } else {
@@ -69,42 +67,36 @@ public class PacienteView extends JPanel implements IObserver {
         setLayout(new java.awt.BorderLayout(10, 10));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel de formulario
         javax.swing.JPanel formPanel = new javax.swing.JPanel(new java.awt.GridBagLayout());
         formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Paciente"));
         java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-        // ID
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(new javax.swing.JLabel("ID:"), gbc);
         gbc.gridx = 1;
         IdTextField = new javax.swing.JTextField(15);
         formPanel.add(IdTextField, gbc);
 
-        // Nombre
         gbc.gridx = 2;
         formPanel.add(new javax.swing.JLabel("Nombre:"), gbc);
         gbc.gridx = 3;
         NombreTextField = new javax.swing.JTextField(15);
         formPanel.add(NombreTextField, gbc);
 
-        // Fecha
         gbc.gridx = 0; gbc.gridy = 1;
         formPanel.add(new javax.swing.JLabel("Fecha (YYYY-MM-DD):"), gbc);
         gbc.gridx = 1;
         FechaNacimientoTextField = new javax.swing.JTextField(15);
         formPanel.add(FechaNacimientoTextField, gbc);
 
-        // Teléfono
         gbc.gridx = 2;
-        formPanel.add(new javax.swing.JLabel("Teléfono:"), gbc);
+        formPanel.add(new javax.swing.JLabel("Telefono:"), gbc);
         gbc.gridx = 3;
         TelefonoTextField = new javax.swing.JTextField(15);
         formPanel.add(TelefonoTextField, gbc);
 
-        // Botones
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 4;
         javax.swing.JPanel btnPanel = new javax.swing.JPanel(new java.awt.FlowLayout());
         guardarButton = new javax.swing.JButton("Guardar");
@@ -117,9 +109,8 @@ public class PacienteView extends JPanel implements IObserver {
 
         add(formPanel, java.awt.BorderLayout.NORTH);
 
-        // Búsqueda
         javax.swing.JPanel searchPanel = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
-        searchPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Búsqueda"));
+        searchPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Busqueda"));
         searchPanel.add(new javax.swing.JLabel("Nombre:"));
         SearchNombreTextField = new javax.swing.JTextField(20);
         searchPanel.add(SearchNombreTextField);
@@ -129,7 +120,6 @@ public class PacienteView extends JPanel implements IObserver {
         searchPanel.add(reporteButton);
         add(searchPanel, java.awt.BorderLayout.CENTER);
 
-        // Tabla
         table = new javax.swing.JTable();
         javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(table);
         scrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder("Listado"));
@@ -154,7 +144,7 @@ public class PacienteView extends JPanel implements IObserver {
                 PacienteDto dto = new PacienteDto(id, nombre, fecha, telefono);
                 controller.crearPacienteAsync(dto);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID inválido.");
+                JOptionPane.showMessageDialog(this, "ID invalido.");
             }
         });
 
@@ -177,7 +167,7 @@ public class PacienteView extends JPanel implements IObserver {
         });
 
         reporteButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aún no implementada.")
+                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aun no implementada.")
         );
     }
 
@@ -199,7 +189,7 @@ public class PacienteView extends JPanel implements IObserver {
     }
 
     private void actualizarTabla(List<PacienteDto> pacientes) {
-        DefaultTableModel model = new DefaultTableModel(new Object[]{"ID", "Nombre", "Fecha Nacimiento", "Teléfono"}, 0);
+        DefaultTableModel model = new DefaultTableModel(new Object[]{"ID", "Nombre", "Fecha Nacimiento", "Telefono"}, 0);
         for (PacienteDto p : pacientes) {
             model.addRow(new Object[]{p.getId(), p.getNombre(), p.getFechaNacimiento(), p.getTelefono()});
         }

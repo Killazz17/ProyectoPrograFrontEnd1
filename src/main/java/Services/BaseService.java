@@ -32,14 +32,12 @@ public class BaseService {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             String requestJson = gson.toJson(request);
-            System.out.println("[BaseService] Enviando: " + requestJson);
 
             writer.write(requestJson);
             writer.newLine();
             writer.flush();
 
             String responseJson = reader.readLine();
-            System.out.println("[BaseService] Recibido: " + responseJson);
 
             if (responseJson == null) {
                 return new ResponseDto(false, "No se recibió respuesta del servidor", null);

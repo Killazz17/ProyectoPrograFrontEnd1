@@ -2,10 +2,6 @@ package Domain.Dtos;
 
 import java.io.Serializable;
 
-/**
- * DTO detallado de medicamento prescrito que incluye información
- * del medicamento base y la fecha de confección
- */
 public class MedicamentoPrescritoDetalladoDto implements Serializable {
     private int id;
     private String medicamentoCodigo;

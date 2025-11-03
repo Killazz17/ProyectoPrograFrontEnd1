@@ -63,9 +63,8 @@ public class MedicoView extends JPanel implements IObserver {
         setLayout(new java.awt.BorderLayout(10, 10));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Formulario
         javax.swing.JPanel formPanel = new javax.swing.JPanel(new java.awt.GridLayout(4, 2, 5, 5));
-        formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Médico"));
+        formPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Medico"));
 
         formPanel.add(new javax.swing.JLabel("ID:"));
         IdTextField = new javax.swing.JTextField();
@@ -86,7 +85,6 @@ public class MedicoView extends JPanel implements IObserver {
 
         add(formPanel, java.awt.BorderLayout.NORTH);
 
-        // Búsqueda
         javax.swing.JPanel searchPanel = new javax.swing.JPanel();
         searchPanel.add(new javax.swing.JLabel("Buscar:"));
         SearchNombreTextField = new javax.swing.JTextField(20);
@@ -99,7 +97,6 @@ public class MedicoView extends JPanel implements IObserver {
         searchPanel.add(reporteButton);
         add(searchPanel, java.awt.BorderLayout.CENTER);
 
-        // Tabla
         table = new javax.swing.JTable();
         add(new javax.swing.JScrollPane(table), java.awt.BorderLayout.SOUTH);
 
@@ -121,7 +118,7 @@ public class MedicoView extends JPanel implements IObserver {
                 MedicoDto dto = new MedicoDto(id, nombre, especialidad);
                 controller.crearMedicoAsync(dto);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "ID inválido.");
+                JOptionPane.showMessageDialog(this, "ID invalido.");
             }
         });
 
@@ -131,7 +128,7 @@ public class MedicoView extends JPanel implements IObserver {
                 int id = (int) table.getValueAt(fila, 0);
                 controller.eliminarMedicoAsync(id);
             } else {
-                JOptionPane.showMessageDialog(this, "Seleccione un médico.");
+                JOptionPane.showMessageDialog(this, "Seleccione un medico.");
             }
         });
 
@@ -144,7 +141,7 @@ public class MedicoView extends JPanel implements IObserver {
         });
 
         reporteButton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aún no implementada.")
+                JOptionPane.showMessageDialog(this, "Funcionalidad de reporte aun no implementada.")
         );
     }
 
@@ -159,8 +156,8 @@ public class MedicoView extends JPanel implements IObserver {
     public void update(EventType eventType, Object data) {
         switch (eventType) {
             case UPDATED -> actualizarTabla((List<MedicoDto>) data);
-            case CREATED -> JOptionPane.showMessageDialog(this, "Médico creado correctamente.");
-            case DELETED -> JOptionPane.showMessageDialog(this, "Médico eliminado correctamente.");
+            case CREATED -> JOptionPane.showMessageDialog(this, "Medico creado correctamente.");
+            case DELETED -> JOptionPane.showMessageDialog(this, "Medico eliminado correctamente.");
         }
     }
 
