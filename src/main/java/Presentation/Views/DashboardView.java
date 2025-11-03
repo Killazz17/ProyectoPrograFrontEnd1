@@ -1,13 +1,11 @@
-// src/main/java/Presentation/Views/DashboardView.java
 package Presentation.Views;
 
-import Domain.Dtos.MedicamentoPrescritoDto;
-import Domain.Dtos.RecetaDetalladaDto;
+import Domain.Dtos.MedicamentoPrescritoDetalladoDto;
 import Presentation.Controllers.DashboardController;
 import Presentation.IObserver;
 import Presentation.Models.RecetaLineChartModel;
 import Presentation.Models.RecetaPieChartModel;
-import Services.RecetaService;
+import Services.MedicamentoPrescritoService;
 import Utilities.EventType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -36,15 +34,15 @@ public class DashboardView extends JPanel implements IObserver {
     private JComboBox<String> hastaMes;
     private JButton filtrarButton;
 
-    private List<RecetaDetalladaDto> recetasActuales;
+    private List<MedicamentoPrescritoDetalladoDto> medicamentosActuales;
     private final DashboardController controller;
 
     public DashboardView() {
-        RecetaService recetaService = new RecetaService();
-        controller = new DashboardController(recetaService);
+        MedicamentoPrescritoService service = new MedicamentoPrescritoService();
+        controller = new DashboardController(service);
         controller.addObserver(this);
 
-        recetasActuales = new ArrayList<>();
+        medicamentosActuales = new ArrayList<>();
         MainPanel = new JPanel(new BorderLayout());
 
         // Crear modelos
@@ -68,7 +66,8 @@ public class DashboardView extends JPanel implements IObserver {
         pieChartPanel = new ChartPanel(pieChart);
 
         // Panel dividido para los dos gráficos
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, lineChartPanel, pieChartPanel);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                lineChartPanel, pieChartPanel);
         splitPane.setDividerLocation(650);
         MainPanel.add(splitPane, BorderLayout.CENTER);
 
@@ -86,7 +85,7 @@ public class DashboardView extends JPanel implements IObserver {
     private void crearPanelControles() {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        // Combo de medicamentos (se llenará cuando lleguen los datos)
+        // Combo de medicamentos
         medicamentoCombo = new JComboBox<>();
         medicamentoCombo.addItem("-- Seleccione medicamento --");
 
@@ -105,7 +104,8 @@ public class DashboardView extends JPanel implements IObserver {
         // Combos de mes
         String[] meses = {
                 "01-Enero", "02-Febrero", "03-Marzo", "04-Abril", "05-Mayo", "06-Junio",
-                "07-Julio", "08-Agosto", "09-Septiembre", "10-Octubre", "11-Noviembre", "12-Diciembre"
+                "07-Julio", "08-Agosto", "09-Septiembre", "10-Octubre", "11-Noviembre",
+                "12-Diciembre"
         };
 
         desdeMes = new JComboBox<>(meses);
@@ -116,6 +116,12 @@ public class DashboardView extends JPanel implements IObserver {
         // Botón filtrar
         filtrarButton = new JButton("✔ Filtrar");
         filtrarButton.addActionListener(e -> aplicarFiltros());
+
+        // Agregar listeners para validación en tiempo real
+        desdeAnio.addActionListener(e -> validarRangoFechas());
+        desdeMes.addActionListener(e -> validarRangoFechas());
+        hastaAnio.addActionListener(e -> validarRangoFechas());
+        hastaMes.addActionListener(e -> validarRangoFechas());
 
         // Agregar componentes
         topPanel.add(new JLabel("Desde:"));
@@ -129,6 +135,33 @@ public class DashboardView extends JPanel implements IObserver {
         topPanel.add(filtrarButton);
 
         MainPanel.add(topPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Valida que el rango de fechas sea correcto en tiempo real
+     * Deshabilita el botón de filtrar si las fechas son inválidas
+     */
+    private void validarRangoFechas() {
+        try {
+            int anioInicio = (Integer) desdeAnio.getSelectedItem();
+            int mesInicio = desdeMes.getSelectedIndex() + 1;
+            int anioFin = (Integer) hastaAnio.getSelectedItem();
+            int mesFin = hastaMes.getSelectedIndex() + 1;
+
+            LocalDate inicio = LocalDate.of(anioInicio, mesInicio, 1);
+            LocalDate fin = LocalDate.of(anioFin, mesFin, 1);
+
+            // Habilitar/deshabilitar botón según validez del rango
+            if (inicio.isAfter(fin)) {
+                filtrarButton.setEnabled(false);
+                filtrarButton.setToolTipText("La fecha 'Desde' no puede ser posterior a 'Hasta'");
+            } else {
+                filtrarButton.setEnabled(true);
+                filtrarButton.setToolTipText("Aplicar filtros");
+            }
+        } catch (Exception e) {
+            filtrarButton.setEnabled(false);
+        }
     }
 
     private void aplicarFiltros() {
@@ -147,68 +180,69 @@ public class DashboardView extends JPanel implements IObserver {
         LocalDate inicio = LocalDate.of(anioInicio, mesInicio, 1);
         LocalDate fin = LocalDate.of(anioFin, mesFin, 1).plusMonths(1).minusDays(1);
 
-        // ✅ FIX: Usar fechaConfeccion en lugar de fecha
-        List<RecetaDetalladaDto> filtradas = recetasActuales.stream()
-                .filter(r -> {
-                    if (r.getFechaConfeccion() == null) return false;
+        // Validar que la fecha "Desde" no sea posterior a la fecha "Hasta"
+        if (inicio.isAfter(fin)) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La fecha 'Desde' no puede ser posterior a la fecha 'Hasta'.\n" +
+                            "Por favor, ajuste las fechas correctamente.",
+                    "Error en rango de fechas",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        // Filtrar medicamentos por rango de fechas
+        List<MedicamentoPrescritoDetalladoDto> filtrados = medicamentosActuales.stream()
+                .filter(mp -> {
+                    if (mp.getFechaConfeccion() == null) return false;
                     try {
-                        LocalDate fecha = LocalDate.parse(r.getFechaConfeccion());
+                        LocalDate fecha = LocalDate.parse(mp.getFechaConfeccion());
                         return !fecha.isBefore(inicio) && !fecha.isAfter(fin);
                     } catch (Exception e) {
-                        System.err.println("[DashboardView] Error parseando fecha: " + e.getMessage());
+                        System.err.println("[DashboardView] Error parseando fecha: "
+                                + e.getMessage());
                         return false;
                     }
                 })
                 .toList();
 
-        System.out.println("[DashboardView] Recetas filtradas: " + filtradas.size() + " de " + recetasActuales.size());
+        System.out.println("[DashboardView] Medicamentos filtrados: " + filtrados.size()
+                + " de " + medicamentosActuales.size());
 
         // Actualizar gráfico de línea
-        lineModel.mapData(filtradas, medicamentoSeleccionado);
+        lineModel.mapData(filtrados, medicamentoSeleccionado);
     }
 
     @Override
     public void update(EventType eventType, Object data) {
         if (eventType == EventType.UPDATED && data instanceof List) {
-            actualizarDatos((List<RecetaDetalladaDto>) data);
+            actualizarDatos((List<MedicamentoPrescritoDetalladoDto>) data);
         }
     }
 
-    // ✅ MÉTODO ACTUALIZADO en DashboardView.java
-    private void actualizarDatos(List<RecetaDetalladaDto> recetas) {
+    private void actualizarDatos(List<MedicamentoPrescritoDetalladoDto> medicamentos) {
         System.out.println("[DashboardView] ====== ACTUALIZANDO DATOS ======");
-        System.out.println("[DashboardView] Recetas recibidas: " + (recetas != null ? recetas.size() : "NULL"));
+        System.out.println("[DashboardView] Medicamentos prescritos recibidos: "
+                + (medicamentos != null ? medicamentos.size() : "NULL"));
 
-        this.recetasActuales = recetas;
+        this.medicamentosActuales = medicamentos;
 
         // Extraer nombres únicos de medicamentos
         Set<String> nombresMedicamentos = new TreeSet<>();
 
-        if (recetas != null && !recetas.isEmpty()) {
-            for (RecetaDetalladaDto receta : recetas) {
-                System.out.println("[DashboardView] Procesando receta ID: " + receta.getId());
-
-                if (receta.getMedicamentos() != null) {
-                    System.out.println("[DashboardView]   Medicamentos en receta: " +
-                            receta.getMedicamentos().size());
-
-                    for (MedicamentoPrescritoDto med : receta.getMedicamentos()) {
-                        if (med.getNombre() != null && !med.getNombre().isBlank()) {
-                            nombresMedicamentos.add(med.getNombre());
-                            System.out.println("[DashboardView]     ✓ Agregado: " + med.getNombre());
-                        } else {
-                            System.out.println("[DashboardView]     ⚠️ Medicamento sin nombre: " +
-                                    med.getCodigo());
-                        }
-                    }
-                } else {
-                    System.out.println("[DashboardView]   ⚠️ Lista de medicamentos NULL");
+        if (medicamentos != null && !medicamentos.isEmpty()) {
+            for (MedicamentoPrescritoDetalladoDto mp : medicamentos) {
+                if (mp.getMedicamentoNombre() != null && !mp.getMedicamentoNombre().isBlank()) {
+                    nombresMedicamentos.add(mp.getMedicamentoNombre());
+                    System.out.println("[DashboardView] Medicamento encontrado: "
+                            + mp.getMedicamentoNombre());
                 }
             }
         }
 
-        System.out.println("[DashboardView] Total medicamentos únicos encontrados: " +
-                nombresMedicamentos.size());
+        System.out.println("[DashboardView] Total medicamentos únicos encontrados: "
+                + nombresMedicamentos.size());
 
         // Actualizar combo de medicamentos
         medicamentoCombo.removeAllItems();
@@ -216,13 +250,23 @@ public class DashboardView extends JPanel implements IObserver {
 
         for (String nombre : nombresMedicamentos) {
             medicamentoCombo.addItem(nombre);
-            System.out.println("[DashboardView]   Agregado al combo: " + nombre);
+            System.out.println("[DashboardView] Agregado al combo: " + nombre);
         }
 
-        // Actualizar gráfico de pastel (no depende de filtros)
-        pieModel.mapData(recetas);
+        // Actualizar gráfico de pastel (estados de recetas)
+        // Crear DTOs temporales para el gráfico de pastel
+        Map<String, Integer> estadoCounts = new HashMap<>();
+        for (MedicamentoPrescritoDetalladoDto mp : medicamentos) {
+            String estado = mp.getEstado() != null ? mp.getEstado() : "SIN_ESTADO";
+            estadoCounts.put(estado, estadoCounts.getOrDefault(estado, 0) + 1);
+        }
 
-        // Si hay medicamentos, seleccionar el primero y mostrar datos
+        pieModel.clear();
+        for (Map.Entry<String, Integer> entry : estadoCounts.entrySet()) {
+            pieModel.setValue(entry.getKey(), entry.getValue());
+        }
+
+        // Si hay medicamentos, seleccionar el primero automáticamente
         if (!nombresMedicamentos.isEmpty()) {
             System.out.println("[DashboardView] ✓ Seleccionando primer medicamento automáticamente");
             medicamentoCombo.setSelectedIndex(1); // Primer medicamento
@@ -231,7 +275,7 @@ public class DashboardView extends JPanel implements IObserver {
             System.out.println("[DashboardView] ⚠️ No hay medicamentos para mostrar");
             JOptionPane.showMessageDialog(
                     this,
-                    "No se encontraron medicamentos en las recetas.\n" +
+                    "No se encontraron medicamentos prescritos.\n" +
                             "Verifique que existan recetas con medicamentos en la base de datos.",
                     "Sin datos",
                     JOptionPane.INFORMATION_MESSAGE
