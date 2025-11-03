@@ -1,15 +1,22 @@
 package Presentation.Views;
 
 import Domain.Dtos.LoginResponseDto;
+import hospital.Cliente.WebSocketClienteMensajeria;
+import hospital.ui.PanelUsuarios;
+
 import javax.swing.*;
 import java.awt.*;
+import java.net.URI;
 
 public class MainWindow extends JFrame {
     private JPanel ContentPanel;
     private JTabbedPane MainTabPanel;
     private JButton LogoutButton;
-
     private final LoginResponseDto usuario;
+
+    // NUEVOS: Para mensajería
+    private WebSocketClienteMensajeria clienteWS;
+    private PanelUsuarios panelUsuarios;
 
     public MainWindow(LoginResponseDto usuario) {
         this.usuario = usuario;
@@ -18,6 +25,9 @@ public class MainWindow extends JFrame {
         setupFrame();
         setupTabs();
         setupListeners();
+
+        // NUEVO: Inicializar sistema de mensajería
+        inicializarSistemaMensajeria();
     }
 
     private void createUIComponents() {
@@ -45,9 +55,51 @@ public class MainWindow extends JFrame {
     private void setupFrame() {
         setContentPane(ContentPanel);
         setTitle("Sistema Hospital - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
-        setSize(1200, 768);
+        setSize(1400, 768); // AUMENTADO el ancho para incluir panel de mensajes
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
+    }
+
+    // NUEVO MÉTODO: Inicializar sistema de mensajería
+    private void inicializarSistemaMensajeria() {
+        try {
+            // Crear ID único basado en el usuario real
+            String userId = usuario.getId() + "-" + usuario.getRol().toUpperCase();
+            String userName = usuario.getNombre() + " (" + usuario.getRol() + ")";
+
+            // Conectar al servidor WebSocket
+            URI serverUri = new URI("ws://localhost:8887");
+            clienteWS = new WebSocketClienteMensajeria(serverUri);
+
+            // Crear panel de usuarios
+            panelUsuarios = new PanelUsuarios(clienteWS, userId);
+
+            // Configurar callbacks
+            clienteWS.configurarCallbacks(
+                    usuarios -> panelUsuarios.actualizarUsuarios(usuarios),
+                    mensaje -> panelUsuarios.mostrarMensajeRecibido(mensaje)
+            );
+
+            // Agregar panel al lado derecho de la ventana principal
+            ContentPanel.add(panelUsuarios, BorderLayout.EAST);
+
+            // Conectar y registrar usuario
+            clienteWS.connect();
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                    clienteWS.registrarUsuario(userId, userName);
+                    System.out.println("✅ Sistema de mensajería iniciado para: " + userName);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+        } catch (Exception e) {
+            System.err.println("⚠️ No se pudo conectar al sistema de mensajería: " + e.getMessage());
+            // La aplicación continúa funcionando sin mensajería
+        }
     }
 
     private void setupTabs() {
@@ -156,6 +208,7 @@ public class MainWindow extends JFrame {
                 );
 
                 if (result == JOptionPane.YES_OPTION) {
+                    cerrarConexiones();
                     System.exit(0);
                 }
             }
@@ -171,15 +224,32 @@ public class MainWindow extends JFrame {
         );
 
         if (result == JOptionPane.YES_OPTION) {
+            cerrarConexiones();
+
             SwingUtilities.invokeLater(() -> {
                 LoginView loginView = new LoginView();
                 Presentation.Controllers.LoginController loginController =
                         new Presentation.Controllers.LoginController(loginView, new Services.AuthService());
                 loginController.addObserver(loginView);
                 loginView.setController(loginController);
+                loginView.setAuthService(new Services.AuthService());
                 loginView.setVisible(true);
                 dispose();
             });
         }
+    }
+
+    // NUEVO MÉTODO: Cerrar conexiones WebSocket al salir
+    private void cerrarConexiones() {
+        if (clienteWS != null && clienteWS.isOpen()) {
+            clienteWS.close();
+            System.out.println("✅ Desconectado del sistema de mensajería");
+        }
+    }
+
+    @Override
+    public void dispose() {
+        cerrarConexiones();
+        super.dispose();
     }
 }
