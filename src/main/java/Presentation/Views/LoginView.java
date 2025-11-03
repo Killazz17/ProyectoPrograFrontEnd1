@@ -32,6 +32,8 @@ public class LoginView extends JFrame implements IObserver {
     public LoginView() {
         setupFrame();
         setupListeners();
+        UserField.setForeground(Color.BLACK);
+        PasswordField.setForeground(Color.BLACK);
     }
 
     /**

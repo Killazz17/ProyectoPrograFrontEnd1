@@ -1,5 +1,6 @@
 package Presentation.Controllers;
 
+import Domain.Dtos.RecetaCreateDto;
 import Domain.Dtos.RecetaDto;
 import Presentation.Observable;
 import Services.PrescripcionService;
@@ -36,21 +37,30 @@ public class PrescribirController extends Observable {
         worker.execute();
     }
 
-    // === Crear receta ===
-    public void crearRecetaAsync(RecetaDto dto) {
-        SwingWorker<RecetaDto, Void> worker = new SwingWorker<>() {
+    // === Crear receta usando RecetaCreateDto ===
+    public void crearRecetaAsync(RecetaCreateDto dto) {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
-            protected RecetaDto doInBackground() throws Exception {
+            protected Boolean doInBackground() throws Exception {
+                System.out.println("[PrescribirController] Creando receta: " + dto);
                 return service.create(dto);
             }
 
             @Override
             protected void done() {
                 try {
-                    get();
-                    notifyObservers(EventType.CREATED, dto);
-                    listarRecetasAsync();
+                    boolean success = get();
+                    if (success) {
+                        System.out.println("[PrescribirController] Receta creada exitosamente");
+                        notifyObservers(EventType.CREATED, dto);
+                        listarRecetasAsync();
+                    } else {
+                        System.err.println("[PrescribirController] Falló la creación de receta");
+                        showError("Error al crear receta", new Exception("El servidor rechazó la receta"));
+                    }
                 } catch (InterruptedException | ExecutionException e) {
+                    System.err.println("[PrescribirController] Excepción al crear receta: " + e.getMessage());
+                    e.printStackTrace();
                     showError("Error al crear receta", e);
                 }
             }
@@ -83,6 +93,10 @@ public class PrescribirController extends Observable {
 
     private void showError(String msg, Exception e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        String errorMsg = msg + "\n" + e.getMessage();
+        if (e.getCause() != null) {
+            errorMsg += "\nCausa: " + e.getCause().getMessage();
+        }
+        JOptionPane.showMessageDialog(null, errorMsg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

@@ -8,6 +8,7 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.List;
 
 public class MedicamentosView extends JPanel implements IObserver {
@@ -49,6 +50,11 @@ public class MedicamentosView extends JPanel implements IObserver {
 
         setupEvents();
         controller.listarMedicamentosAsync();
+
+        CodigoTextField.setForeground(Color.BLACK);
+        NombreTextField.setForeground(Color.BLACK);
+        DescripcionTextField.setForeground(Color.BLACK);
+        SearchNombreTextField.setForeground(Color.BLACK);
     }
 
     private void setupEvents() {

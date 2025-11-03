@@ -8,6 +8,7 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.List;
 
 public class MedicoView extends JPanel implements IObserver {
@@ -51,6 +52,11 @@ public class MedicoView extends JPanel implements IObserver {
         }
 
         controller.listarMedicosAsync();
+
+        IdTextField.setForeground(Color.BLACK);
+        NombreTextField.setForeground(Color.BLACK);
+        EspecialidadTextField.setForeground(Color.BLACK);
+        SearchNombreTextField.setForeground(Color.BLACK);
     }
 
     private void createManualUI() {

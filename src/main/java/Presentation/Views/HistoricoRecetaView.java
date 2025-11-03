@@ -8,6 +8,7 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.List;
 
 public class HistoricoRecetaView extends JPanel implements IObserver {
@@ -36,6 +37,8 @@ public class HistoricoRecetaView extends JPanel implements IObserver {
 
         setupEvents();
         controller.listarHistoricoAsync();
+
+        FilterHistoricoTextField.setForeground(Color.BLACK);
     }
 
     private void setupEvents() {

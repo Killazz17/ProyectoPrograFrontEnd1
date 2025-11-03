@@ -8,6 +8,7 @@ import Utilities.EventType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.List;
 
 public class DespachoView extends JPanel implements IObserver {
@@ -37,6 +38,8 @@ public class DespachoView extends JPanel implements IObserver {
 
         setupEvents();
         controller.listarDespachosAsync();
+
+        idField.setForeground(Color.BLACK);
     }
 
     private void setupEvents() {
