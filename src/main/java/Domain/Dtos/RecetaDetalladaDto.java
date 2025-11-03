@@ -6,23 +6,27 @@ import java.util.List;
 
 /**
  * DTO que incluye los medicamentos para el dashboard
+ * ACTUALIZADO: Coincide con RecetaDetalladaResponseDto del backend
  */
 public class RecetaDetalladaDto implements Serializable {
     private int id;
     private int idPaciente;
     private int idMedico;
-    private String fecha; // formato: yyyy-MM-dd
-    private String estado; // CONFECCIONADA, EN_PROCESO, LISTA, ENTREGADA
+    private String fechaConfeccion; // ✅ Cambiado de "fecha" a "fechaConfeccion"
+    private String fechaRetiro;     // ✅ Agregado
+    private String estado;
     private List<MedicamentoPrescritoDto> medicamentos;
 
     public RecetaDetalladaDto() {}
 
-    public RecetaDetalladaDto(int id, int idPaciente, int idMedico, String fecha,
+    public RecetaDetalladaDto(int id, int idPaciente, int idMedico,
+                              String fechaConfeccion, String fechaRetiro,
                               String estado, List<MedicamentoPrescritoDto> medicamentos) {
         this.id = id;
         this.idPaciente = idPaciente;
         this.idMedico = idMedico;
-        this.fecha = fecha;
+        this.fechaConfeccion = fechaConfeccion;
+        this.fechaRetiro = fechaRetiro;
         this.estado = estado;
         this.medicamentos = medicamentos;
     }
@@ -37,13 +41,22 @@ public class RecetaDetalladaDto implements Serializable {
     public int getIdMedico() { return idMedico; }
     public void setIdMedico(int idMedico) { this.idMedico = idMedico; }
 
-    public String getFecha() { return fecha; }
-    public void setFecha(String fecha) { this.fecha = fecha; }
+    public String getFechaConfeccion() { return fechaConfeccion; }
+    public void setFechaConfeccion(String fechaConfeccion) {
+        this.fechaConfeccion = fechaConfeccion;
+    }
+
+    public String getFechaRetiro() { return fechaRetiro; }
+    public void setFechaRetiro(String fechaRetiro) {
+        this.fechaRetiro = fechaRetiro;
+    }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
 
-    public List<MedicamentoPrescritoDto> getMedicamentos() { return medicamentos; }
+    public List<MedicamentoPrescritoDto> getMedicamentos() {
+        return medicamentos;
+    }
     public void setMedicamentos(List<MedicamentoPrescritoDto> medicamentos) {
         this.medicamentos = medicamentos;
     }
