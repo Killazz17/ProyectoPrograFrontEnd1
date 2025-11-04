@@ -1,10 +1,10 @@
 package Domain.Dtos;
 
 public class RequestDto {
-    private String controller;  // e.g. "Auth", "Product"
-    private String request;     // e.g. "login", "register"
-    private String data;        // JSON of a specific DTO (LoginRequestDto, RegisterRequestDto...)
-    private String token;       // Optional: session token for authentication
+    private String controller;
+    private String request;
+    private String data;
+    private String token;
 
     public RequestDto() {}
 

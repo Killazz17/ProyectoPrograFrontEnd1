@@ -1,9 +1,9 @@
 package Domain.Dtos;
 
 public class ResponseDto {
-    private boolean success;   // true if operation succeeded
-    private String message;    // description or error message
-    private String data;       // JSON of the response DTO (UserResponseDto, AuthResponseData, etc.)
+    private boolean success;
+    private String message;
+    private String data;
 
     public ResponseDto() {}
 

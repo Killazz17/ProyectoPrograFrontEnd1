@@ -17,7 +17,6 @@ public class MedicoController extends Observable {
         this.service = service;
     }
 
-    // === Listar médicos ===
     public void listarMedicosAsync() {
         SwingWorker<List<MedicoDto>, Void> worker = new SwingWorker<>() {
             @Override
@@ -37,7 +36,6 @@ public class MedicoController extends Observable {
         worker.execute();
     }
 
-    // === Crear médico ===
     public void crearMedicoAsync(MedicoDto dto) {
         SwingWorker<MedicoDto, Void> worker = new SwingWorker<>() {
             @Override
@@ -59,7 +57,6 @@ public class MedicoController extends Observable {
         worker.execute();
     }
 
-    // === Eliminar médico ===
     public void eliminarMedicoAsync(int id) {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
@@ -82,7 +79,6 @@ public class MedicoController extends Observable {
         worker.execute();
     }
 
-    // === Buscar por nombre ===
     public void buscarMedicoAsync(String nombre) {
         SwingWorker<List<MedicoDto>, Void> worker = new SwingWorker<>() {
             @Override

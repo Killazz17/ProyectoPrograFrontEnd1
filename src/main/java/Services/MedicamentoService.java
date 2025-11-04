@@ -24,22 +24,50 @@ public class MedicamentoService extends BaseService {
                 return gson.fromJson(res.getData(), new TypeToken<List<MedicamentoDto>>() {}.getType());
             } catch (Exception e) {
                 System.err.println("[MedicamentoService] Error al parsear lista: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         return List.of();
     }
 
-    public MedicamentoDto create(String codigo, String nombre, String descripcion) {
-        MedicamentoDto dto = new MedicamentoDto(codigo, nombre, descripcion);
-        RequestDto req = new RequestDto("Medicamentos", "createMedicamento", gson.toJson(dto), null);
+    public MedicamentoDto create(String codigo, String nombre, String presentacion) {
+        // Crear DTO con los nombres correctos de campos
+        MedicamentoDto dto = new MedicamentoDto(codigo, nombre, presentacion);
+
+        // Serializar a JSON
+        String jsonData = gson.toJson(dto);
+        System.out.println("[MedicamentoService] Enviando JSON: " + jsonData);
+
+        RequestDto req = new RequestDto("Medicamentos", "createMedicamento", jsonData, null);
         ResponseDto res = sendRequest(req);
-        return (res != null && res.isSuccess()) ? dto : null;
+
+        if (res != null) {
+            System.out.println("[MedicamentoService] Respuesta del servidor: success=" + res.isSuccess() + ", message=" + res.getMessage());
+            if (res.isSuccess()) {
+                return dto;
+            } else {
+                System.err.println("[MedicamentoService] Error del servidor: " + res.getMessage());
+            }
+        } else {
+            System.err.println("[MedicamentoService] No se recibió respuesta del servidor");
+        }
+
+        return null;
     }
 
     public boolean delete(String codigo) {
-        RequestDto req = new RequestDto("Medicamentos", "deleteMedicamento", gson.toJson(codigo), null);
+        System.out.println("[MedicamentoService] Eliminando medicamento con código: " + codigo);
+
+        RequestDto req = new RequestDto("Medicamentos", "deleteMedicamento", codigo, null);
         ResponseDto res = sendRequest(req);
-        return res != null && res.isSuccess();
+
+        if (res != null) {
+            System.out.println("[MedicamentoService] Respuesta delete: success=" + res.isSuccess() + ", message=" + res.getMessage());
+            return res.isSuccess();
+        }
+
+        System.err.println("[MedicamentoService] No se recibió respuesta del servidor");
+        return false;
     }
 
     public List<MedicamentoDto> searchByName(String nombre) {

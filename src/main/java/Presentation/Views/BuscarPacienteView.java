@@ -50,7 +50,6 @@ public class BuscarPacienteView extends JDialog implements IObserver {
         MainPanel = new JPanel(new BorderLayout(10, 10));
         MainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel superior: Filtros
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         FilterByLabel = new JLabel("Filtrar por:");
         FilterByComboBox = new JComboBox<>(new String[]{"Nombre", "ID"});
@@ -59,11 +58,9 @@ public class BuscarPacienteView extends JDialog implements IObserver {
         topPanel.add(FilterByComboBox);
         topPanel.add(FilterByTexField);
 
-        // Tabla
         SearchPatientPanel = new JTable();
         SeacrhPatientScrollPanel = new JScrollPane(SearchPatientPanel);
 
-        // Panel inferior: Botones
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         OKButton = new JButton("Aceptar");
         OKButton.setIcon(new ImageIcon(getClass().getResource("/icons/check-mark.png")));
@@ -86,10 +83,8 @@ public class BuscarPacienteView extends JDialog implements IObserver {
     }
 
     private void setupEvents() {
-        // Búsqueda en tiempo real
         FilterByTexField.addActionListener(e -> buscarPaciente());
 
-        // Doble clic en la tabla para seleccionar
         SearchPatientPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -99,10 +94,8 @@ public class BuscarPacienteView extends JDialog implements IObserver {
             }
         });
 
-        // Botón OK
         OKButton.addActionListener(e -> seleccionarYCerrar());
 
-        // Botón Cancelar
         CancelButton.addActionListener(e -> {
             seleccionConfirmada = false;
             pacienteSeleccionado = null;
@@ -118,10 +111,8 @@ public class BuscarPacienteView extends JDialog implements IObserver {
             controller.listarPacientesAsync();
         } else {
             if ("ID".equals(tipoBusqueda)) {
-                // Buscar por ID (implementar si es necesario)
                 controller.listarPacientesAsync();
             } else {
-                // Buscar por nombre
                 controller.buscarPacienteAsync(filtro);
             }
         }
@@ -178,7 +169,6 @@ public class BuscarPacienteView extends JDialog implements IObserver {
         SearchPatientPanel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
 
-    // Métodos públicos para obtener el resultado
     public PacienteDto getPacienteSeleccionado() {
         return pacienteSeleccionado;
     }

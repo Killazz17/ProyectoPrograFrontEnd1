@@ -1,20 +1,22 @@
 package Presentation.Views;
 
 import Domain.Dtos.LoginResponseDto;
+import hospital.Cliente.WebSocketClienteMensajeria;
+import hospital.ui.PanelUsuarios;
+
 import javax.swing.*;
 import java.awt.*;
+import java.net.URI;
 
-/**
- * Ventana principal del sistema hospitalario.
- * Se abre después de un login exitoso y configura las pestañas
- * según el rol del usuario autenticado.
- */
 public class MainWindow extends JFrame {
     private JPanel ContentPanel;
     private JTabbedPane MainTabPanel;
     private JButton LogoutButton;
-
     private final LoginResponseDto usuario;
+
+    // NUEVOS: Para mensajería
+    private WebSocketClienteMensajeria clienteWS;
+    private PanelUsuarios panelUsuarios;
 
     public MainWindow(LoginResponseDto usuario) {
         this.usuario = usuario;
@@ -23,31 +25,29 @@ public class MainWindow extends JFrame {
         setupFrame();
         setupTabs();
         setupListeners();
+
+        // NUEVO: Inicializar sistema de mensajería
+        inicializarSistemaMensajeria();
     }
 
     private void createUIComponents() {
         ContentPanel = new JPanel(new BorderLayout());
 
-        // Toolbar superior
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
 
-        // Información del usuario
         JLabel userInfoLabel = new JLabel("Usuario: " + usuario.getNombre() + " | Rol: " + usuario.getRol());
         userInfoLabel.setFont(new Font("Dialog", Font.BOLD, 12));
         toolbar.add(userInfoLabel);
 
-        // Spacer
         toolbar.add(Box.createHorizontalGlue());
 
-        // Botón de logout
         LogoutButton = new JButton("Cerrar Sesión");
         LogoutButton.setFocusPainted(false);
         toolbar.add(LogoutButton);
 
         ContentPanel.add(toolbar, BorderLayout.NORTH);
 
-        // Panel de pestañas
         MainTabPanel = new JTabbedPane();
         ContentPanel.add(MainTabPanel, BorderLayout.CENTER);
     }
@@ -55,9 +55,51 @@ public class MainWindow extends JFrame {
     private void setupFrame() {
         setContentPane(ContentPanel);
         setTitle("Sistema Hospital - " + usuario.getNombre() + " (" + usuario.getRol() + ")");
-        setSize(1200, 768);
+        setSize(1400, 768); // AUMENTADO el ancho para incluir panel de mensajes
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
+    }
+
+    // NUEVO MÉTODO: Inicializar sistema de mensajería
+    private void inicializarSistemaMensajeria() {
+        try {
+            // Crear ID único basado en el usuario real
+            String userId = usuario.getId() + "-" + usuario.getRol().toUpperCase();
+            String userName = usuario.getNombre() + " (" + usuario.getRol() + ")";
+
+            // Conectar al servidor WebSocket
+            URI serverUri = new URI("ws://localhost:8887");
+            clienteWS = new WebSocketClienteMensajeria(serverUri);
+
+            // Crear panel de usuarios
+            panelUsuarios = new PanelUsuarios(clienteWS, userId);
+
+            // Configurar callbacks
+            clienteWS.configurarCallbacks(
+                    usuarios -> panelUsuarios.actualizarUsuarios(usuarios),
+                    mensaje -> panelUsuarios.mostrarMensajeRecibido(mensaje)
+            );
+
+            // Agregar panel al lado derecho de la ventana principal
+            ContentPanel.add(panelUsuarios, BorderLayout.EAST);
+
+            // Conectar y registrar usuario
+            clienteWS.connect();
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                    clienteWS.registrarUsuario(userId, userName);
+                    System.out.println("✅ Sistema de mensajería iniciado para: " + userName);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+        } catch (Exception e) {
+            System.err.println("⚠️ No se pudo conectar al sistema de mensajería: " + e.getMessage());
+            // La aplicación continúa funcionando sin mensajería
+        }
     }
 
     private void setupTabs() {
@@ -67,8 +109,6 @@ public class MainWindow extends JFrame {
             JOptionPane.showMessageDialog(this, "Rol no definido");
             return;
         }
-
-        System.out.println("[MainWindow] Configurando pestañas para rol: " + rol);
 
         switch (rol.toUpperCase()) {
             case "ADMIN":
@@ -89,7 +129,6 @@ public class MainWindow extends JFrame {
                 break;
         }
 
-        // Si no se agregaron pestañas, mostrar error
         if (MainTabPanel.getTabCount() == 0) {
             JPanel errorPanel = new JPanel(new BorderLayout());
             JLabel errorLabel = new JLabel(
@@ -103,9 +142,6 @@ public class MainWindow extends JFrame {
     }
 
     private void setupAdminTabs() {
-        System.out.println("[MainWindow] Agregando pestañas de administrador");
-
-        // ✅ Agregar los JPanel directamente (no usar getContentPane)
         PacienteView pacienteView = new PacienteView();
         MainTabPanel.addTab("Pacientes", pacienteView);
 
@@ -123,14 +159,9 @@ public class MainWindow extends JFrame {
 
         HistoricoRecetaView historicoRecetaView = new HistoricoRecetaView();
         MainTabPanel.addTab("Historico", historicoRecetaView);
-
-
-        System.out.println("[MainWindow] Pestañas de admin agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupMedicoTabs() {
-        System.out.println("[MainWindow] Agregando pestañas de médico");
-
         PrescribirView prescribirView = new PrescribirView();
         MainTabPanel.addTab("Prescribir", prescribirView);
 
@@ -142,13 +173,9 @@ public class MainWindow extends JFrame {
 
         DashboardView dashboardView = new DashboardView();
         MainTabPanel.addTab("Dashboard", dashboardView);
-
-        System.out.println("[MainWindow] Pestañas de médico agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupFarmaceutaTabs() {
-        System.out.println("[MainWindow] Agregando pestañas de farmaceuta");
-
         DespachoView despachoView = new DespachoView(usuario);
         MainTabPanel.addTab("Despacho", despachoView);
 
@@ -160,17 +187,11 @@ public class MainWindow extends JFrame {
 
         DashboardView dashboardView = new DashboardView();
         MainTabPanel.addTab("Dashboard", dashboardView);
-
-        System.out.println("[MainWindow] Pestañas de farmaceuta agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupPacienteTabs() {
-        System.out.println("[MainWindow] Agregando pestañas de paciente");
-
         DespachoView despachoView = new DespachoView(usuario);
         MainTabPanel.addTab("Despacho", despachoView);
-
-        System.out.println("[MainWindow] Pestañas de paciente agregadas: " + MainTabPanel.getTabCount());
     }
 
     private void setupListeners() {
@@ -181,12 +202,13 @@ public class MainWindow extends JFrame {
             public void windowClosing(java.awt.event.WindowEvent e) {
                 int result = JOptionPane.showConfirmDialog(
                         MainWindow.this,
-                        "¿Está seguro que desea salir?",
+                        "¿Esta seguro que desea salir?",
                         "Confirmar Salida",
                         JOptionPane.YES_NO_OPTION
                 );
 
                 if (result == JOptionPane.YES_OPTION) {
+                    cerrarConexiones();
                     System.exit(0);
                 }
             }
@@ -196,21 +218,38 @@ public class MainWindow extends JFrame {
     private void performLogout() {
         int result = JOptionPane.showConfirmDialog(
                 this,
-                "¿Está seguro que desea cerrar sesión?",
-                "Cerrar Sesión",
+                "¿Esta seguro que desea cerrar sesion?",
+                "Cerrar Sesion",
                 JOptionPane.YES_NO_OPTION
         );
 
         if (result == JOptionPane.YES_OPTION) {
+            cerrarConexiones();
+
             SwingUtilities.invokeLater(() -> {
                 LoginView loginView = new LoginView();
                 Presentation.Controllers.LoginController loginController =
                         new Presentation.Controllers.LoginController(loginView, new Services.AuthService());
                 loginController.addObserver(loginView);
                 loginView.setController(loginController);
+                loginView.setAuthService(new Services.AuthService());
                 loginView.setVisible(true);
                 dispose();
             });
         }
+    }
+
+    // NUEVO MÉTODO: Cerrar conexiones WebSocket al salir
+    private void cerrarConexiones() {
+        if (clienteWS != null && clienteWS.isOpen()) {
+            clienteWS.close();
+            System.out.println("✅ Desconectado del sistema de mensajería");
+        }
+    }
+
+    @Override
+    public void dispose() {
+        cerrarConexiones();
+        super.dispose();
     }
 }

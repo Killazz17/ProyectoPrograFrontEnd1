@@ -2,6 +2,7 @@ package Presentation.Views;
 
 import Domain.Dtos.LoginResponseDto;
 import Presentation.IObserver;
+import Services.AuthService;
 import Utilities.EventType;
 
 import javax.swing.*;
@@ -10,7 +11,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class LoginView extends JFrame implements IObserver {
-    // Componentes generados por el .form
     private JPanel ContentPane;
     private JPanel ImagePane;
     private JPanel LoginForm;
@@ -28,6 +28,7 @@ public class LoginView extends JFrame implements IObserver {
 
     private LoginResponseDto responseData;
     private Presentation.Controllers.LoginController controller;
+    private AuthService authService;
 
     public LoginView() {
         setupFrame();
@@ -36,11 +37,12 @@ public class LoginView extends JFrame implements IObserver {
         PasswordField.setForeground(Color.BLACK);
     }
 
-    /**
-     * Establece el controlador para esta vista
-     */
     public void setController(Presentation.Controllers.LoginController controller) {
         this.controller = controller;
+    }
+
+    public void setAuthService(AuthService authService) {
+        this.authService = authService;
     }
 
     private void setupFrame() {
@@ -53,16 +55,13 @@ public class LoginView extends JFrame implements IObserver {
     }
 
     private void setupListeners() {
-        // Botón Ingresar
         LogginButton.addActionListener(e -> performLogin());
 
-        // Botón Limpiar
         CleanFieldsButton.addActionListener(e -> clearFields());
 
-        // Botón Cambiar Contraseña (deshabilitado por ahora)
-        ChangePasswordButton.setEnabled(false);
+        ChangePasswordButton.setEnabled(true);
+        ChangePasswordButton.addActionListener(e -> openChangePassword());
 
-        // Enter en el campo de password ejecuta login
         PasswordField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -72,7 +71,6 @@ public class LoginView extends JFrame implements IObserver {
             }
         });
 
-        // Enter en el campo de usuario mueve el foco a password
         UserField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -83,10 +81,23 @@ public class LoginView extends JFrame implements IObserver {
         });
     }
 
+    private void openChangePassword() {
+        if (authService == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Error: Servicio de autenticacion no configurado",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ChangePasswordView changePasswordView = new ChangePasswordView(this, authService);
+        changePasswordView.setVisible(true);
+    }
+
     private void performLogin() {
         if (controller == null) {
             JOptionPane.showMessageDialog(this, "Error: No se ha configurado el controlador",
-                    "Error de configuración", JOptionPane.ERROR_MESSAGE);
+                    "Error de configuracion", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -113,7 +124,6 @@ public class LoginView extends JFrame implements IObserver {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                // ✅ Usar loginByNombre para login con nombre de usuario
                 controller.loginByNombre(usuario, clave);
                 return null;
             }
@@ -131,7 +141,6 @@ public class LoginView extends JFrame implements IObserver {
         if (response.isSuccess()) {
             this.responseData = response;
 
-            // Mostrar mensaje de bienvenida
             String mensaje = String.format(
                     "¡Bienvenido!\n\nUsuario: %s\nRol: %s",
                     response.getNombre(),
@@ -145,7 +154,6 @@ public class LoginView extends JFrame implements IObserver {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            // Abrir ventana principal
             SwingUtilities.invokeLater(() -> {
                 MainWindow mainWindow = new MainWindow(response);
                 mainWindow.setVisible(true);
@@ -174,26 +182,20 @@ public class LoginView extends JFrame implements IObserver {
     private void setButtonsEnabled(boolean enabled) {
         LogginButton.setEnabled(enabled);
         CleanFieldsButton.setEnabled(enabled);
+        ChangePasswordButton.setEnabled(enabled);
         UserField.setEnabled(enabled);
         PasswordField.setEnabled(enabled);
     }
 
-    /**
-     * Implementación del método update de IObserver
-     * Se invoca cuando el controlador notifica cambios
-     */
     @Override
     public void update(EventType eventType, Object data) {
         if (data instanceof LoginResponseDto) {
             LoginResponseDto response = (LoginResponseDto) data;
 
-            // Ejecutar en el Event Dispatch Thread
             SwingUtilities.invokeLater(() -> {
                 if (eventType == EventType.CREATED) {
-                    // Login exitoso
                     handleLoginResponse(response);
                 } else if (eventType == EventType.DELETED) {
-                    // Login fallido
                     handleLoginResponse(response);
                 }
             });

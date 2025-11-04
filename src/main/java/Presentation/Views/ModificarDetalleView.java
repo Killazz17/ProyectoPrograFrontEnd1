@@ -85,7 +85,6 @@ public class ModificarDetalleView extends JDialog {
         IndicationsTexField = new JTextField(indicaciones, 30);
         ModifyPanel.add(IndicationsTexField, gbc);
 
-        // Botones
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;

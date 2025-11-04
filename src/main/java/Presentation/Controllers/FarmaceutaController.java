@@ -16,7 +16,6 @@ public class FarmaceutaController extends Observable {
         this.service = service;
     }
 
-    // === Listar farmaceutas ===
     public void listarFarmaceutasAsync() {
         SwingWorker<List<FarmaceutaDto>, Void> worker = new SwingWorker<>() {
             @Override
@@ -36,7 +35,6 @@ public class FarmaceutaController extends Observable {
         worker.execute();
     }
 
-    // === Crear farmaceuta ===
     public void crearFarmaceutaAsync(FarmaceutaDto dto) {
         SwingWorker<FarmaceutaDto, Void> worker = new SwingWorker<>() {
             @Override
@@ -58,7 +56,6 @@ public class FarmaceutaController extends Observable {
         worker.execute();
     }
 
-    // === Eliminar farmaceuta ===
     public void eliminarFarmaceutaAsync(int id) {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
@@ -81,7 +78,6 @@ public class FarmaceutaController extends Observable {
         worker.execute();
     }
 
-    // === Buscar por nombre ===
     public void buscarFarmaceutaAsync(String nombre) {
         SwingWorker<List<FarmaceutaDto>, Void> worker = new SwingWorker<>() {
             @Override

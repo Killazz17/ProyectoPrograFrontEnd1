@@ -14,7 +14,6 @@ public class RecetaPieChartModel extends DefaultPieDataset {
             return;
         }
 
-        // Mapa: Estado -> Cantidad
         Map<String, Integer> cantidadPorEstado = new HashMap<>();
 
         for (RecetaDetalladaDto receta : recetas) {
@@ -22,7 +21,6 @@ public class RecetaPieChartModel extends DefaultPieDataset {
             cantidadPorEstado.put(estado, cantidadPorEstado.getOrDefault(estado, 0) + 1);
         }
 
-        // Agregar datos al dataset
         for (Map.Entry<String, Integer> entry : cantidadPorEstado.entrySet()) {
             setValue(entry.getKey(), entry.getValue());
         }

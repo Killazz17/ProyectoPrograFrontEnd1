@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-/**
- * DTO para crear una nueva receta desde el frontend
- * Debe coincidir con RecetaCreateDto del backend
- */
 public class RecetaCreateDto implements Serializable {
     private int pacienteId;
     private Date fechaRetiro;

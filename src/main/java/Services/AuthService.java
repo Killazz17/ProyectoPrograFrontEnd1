@@ -8,18 +8,14 @@ import Domain.Dtos.LoginResponseDto;
 public class AuthService extends BaseService {
 
     public AuthService() {
-        super(); // Usa localhost:7070 por defecto
+        super();
     }
 
     public AuthService(String host, int port) {
         super(host, port);
     }
 
-    /**
-     * Login usando nombre de usuario (NO id numérico)
-     */
     public LoginResponseDto loginByNombre(String nombre, String clave) {
-        // Crear JSON manualmente con nombre y clave
         String jsonData = String.format("{\"nombre\":\"%s\",\"clave\":\"%s\"}", nombre, clave);
         RequestDto req = new RequestDto("Auth", "loginByNombre", jsonData, null);
 
@@ -32,7 +28,7 @@ public class AuthService extends BaseService {
             try {
                 com.google.gson.JsonObject jsonObject = gson.fromJson(res.getData(), com.google.gson.JsonObject.class);
 
-                int id = jsonObject.get("id").getAsInt();           // ✅ OBTENER ID
+                int id = jsonObject.get("id").getAsInt();
                 String nombreUsuario = jsonObject.get("nombre").getAsString();
                 String rol = jsonObject.get("rol").getAsString();
 
@@ -47,9 +43,6 @@ public class AuthService extends BaseService {
         return new LoginResponseDto(false, 0, "", "", res.getMessage());
     }
 
-    /**
-     * Login usando ID (para compatibilidad)
-     */
     public LoginResponseDto login(LoginRequestDto credentials) {
         String jsonData = gson.toJson(credentials);
         RequestDto req = new RequestDto("Auth", "login", jsonData, null);
@@ -78,9 +71,30 @@ public class AuthService extends BaseService {
         return new LoginResponseDto(false, 0, "", "", res.getMessage());
     }
 
-    /**
-     * Envía solicitud de cierre de sesión
-     */
+    public boolean changePassword(String nombreUsuario, String claveActual, String claveNueva) {
+        try {
+            String jsonData = String.format(
+                    "{\"nombreUsuario\":\"%s\",\"claveActual\":\"%s\",\"claveNueva\":\"%s\"}",
+                    nombreUsuario, claveActual, claveNueva
+            );
+
+            RequestDto req = new RequestDto("Auth", "changePassword", jsonData, null);
+            ResponseDto res = sendRequest(req);
+
+            if (res == null) {
+                System.err.println("[AuthService] No se recibió respuesta del servidor");
+                return false;
+            }
+
+            return res.isSuccess();
+
+        } catch (Exception e) {
+            System.err.println("[AuthService] Error al cambiar contraseña: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean logout(String token) {
         RequestDto req = new RequestDto("Auth", "logout", null, token);
         ResponseDto res = sendRequest(req);

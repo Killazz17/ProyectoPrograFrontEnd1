@@ -17,7 +17,6 @@ public class PrescribirController extends Observable {
         this.service = service;
     }
 
-    // === Listar recetas ===
     public void listarRecetasAsync() {
         SwingWorker<List<RecetaDto>, Void> worker = new SwingWorker<>() {
             @Override
@@ -37,7 +36,6 @@ public class PrescribirController extends Observable {
         worker.execute();
     }
 
-    // === Crear receta usando RecetaCreateDto ===
     public void crearRecetaAsync(RecetaCreateDto dto) {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
@@ -67,8 +65,7 @@ public class PrescribirController extends Observable {
         };
         worker.execute();
     }
-
-    // === Eliminar receta ===
+    
     public void eliminarRecetaAsync(int id) {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override

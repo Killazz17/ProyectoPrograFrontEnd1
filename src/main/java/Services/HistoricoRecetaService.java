@@ -54,6 +54,7 @@ public class HistoricoRecetaService extends BaseService {
                 e.printStackTrace();
             }
         }
+    public List<HistoricoRecetaDto> getAll() {
         return List.of();
     }
 

@@ -7,9 +7,6 @@ import Presentation.Views.LoginView;
 import Services.AuthService;
 import Utilities.EventType;
 
-/**
- * Controlador de login compatible con la arquitectura nueva (AuthService + sockets)
- */
 public class LoginController extends Observable {
     private final AuthService authService;
     private final LoginView loginView;
@@ -19,7 +16,6 @@ public class LoginController extends Observable {
         this.authService = authService;
     }
 
-    // Método para hacer login usando NOMBRE DE USUARIO y contraseña
     public LoginResponseDto loginByNombre(String nombreUsuario, String clave) {
         try {
             LoginResponseDto response = authService.loginByNombre(nombreUsuario, clave);
@@ -39,7 +35,6 @@ public class LoginController extends Observable {
         }
     }
 
-    // Método para hacer login usando ID (para compatibilidad)
     public LoginResponseDto login(int id, String password) {
         try {
             LoginRequestDto request = new LoginRequestDto(id, password);

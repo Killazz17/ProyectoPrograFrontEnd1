@@ -1,4 +1,3 @@
-// src/main/java/Services/RecetaService.java
 package Services;
 
 import Domain.Dtos.RecetaDetalladaDto;
@@ -18,9 +17,6 @@ public class RecetaService extends BaseService {
         super(host, port);
     }
 
-    /**
-     * Obtener todas las recetas para el dashboard
-     */
     public List<RecetaDto> getAll() {
         RequestDto req = new RequestDto("Recetas", "getAllRecetas", null, null);
         ResponseDto res = sendRequest(req);
@@ -34,7 +30,6 @@ public class RecetaService extends BaseService {
         return List.of();
     }
 
-    // Agregar al RecetaService.java existente
     public List<RecetaDetalladaDto> getAllDetalladas() {
         RequestDto req = new RequestDto("Recetas", "getAllRecetasDetalladas", null, null);
         ResponseDto res = sendRequest(req);
