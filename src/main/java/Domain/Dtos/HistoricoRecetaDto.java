@@ -5,15 +5,17 @@ import java.io.Serializable;
 public class HistoricoRecetaDto implements Serializable {
     private int id;
     private String paciente;
+    private int idPaciente;
     private String medico;
     private String fecha;
     private String estado;
 
     public HistoricoRecetaDto() {}
 
-    public HistoricoRecetaDto(int id, String paciente, String medico, String fecha, String estado) {
+    public HistoricoRecetaDto(int id, String paciente, int idPaciente, String medico, String fecha, String estado) {
         this.id = id;
         this.paciente = paciente;
+        this.idPaciente = idPaciente;
         this.medico = medico;
         this.fecha = fecha;
         this.estado = estado;
@@ -25,6 +27,7 @@ public class HistoricoRecetaDto implements Serializable {
     public String getPaciente() { return paciente; }
     public void setPaciente(String paciente) { this.paciente = paciente; }
 
+    public int getIdPaciente() { return idPaciente; }
     public String getMedico() { return medico; }
     public void setMedico(String medico) { this.medico = medico; }
 

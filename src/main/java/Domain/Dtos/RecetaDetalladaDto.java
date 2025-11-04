@@ -12,10 +12,12 @@ public class RecetaDetalladaDto implements Serializable {
     private int id;
     private int idPaciente;
     private int idMedico;
-    private String fechaConfeccion; // ✅ Cambiado de "fecha" a "fechaConfeccion"
-    private String fechaRetiro;     // ✅ Agregado
+    private String fechaConfeccion;
+    private String fechaRetiro;
     private String estado;
     private List<MedicamentoPrescritoDto> medicamentos;
+
+    private String pacienteNombre;
 
     public RecetaDetalladaDto() {}
 
@@ -31,7 +33,7 @@ public class RecetaDetalladaDto implements Serializable {
         this.medicamentos = medicamentos;
     }
 
-    // Getters y setters
+    // === GETTERS Y SETTERS ===
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -42,22 +44,24 @@ public class RecetaDetalladaDto implements Serializable {
     public void setIdMedico(int idMedico) { this.idMedico = idMedico; }
 
     public String getFechaConfeccion() { return fechaConfeccion; }
-    public void setFechaConfeccion(String fechaConfeccion) {
-        this.fechaConfeccion = fechaConfeccion;
-    }
+    public void setFechaConfeccion(String fechaConfeccion) { this.fechaConfeccion = fechaConfeccion; }
 
     public String getFechaRetiro() { return fechaRetiro; }
-    public void setFechaRetiro(String fechaRetiro) {
-        this.fechaRetiro = fechaRetiro;
-    }
+    public void setFechaRetiro(String fechaRetiro) { this.fechaRetiro = fechaRetiro; }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
 
-    public List<MedicamentoPrescritoDto> getMedicamentos() {
-        return medicamentos;
-    }
+    public List<MedicamentoPrescritoDto> getMedicamentos() { return medicamentos; }
     public void setMedicamentos(List<MedicamentoPrescritoDto> medicamentos) {
         this.medicamentos = medicamentos;
+    }
+
+    public String getPacienteNombre() {
+        return pacienteNombre != null ? pacienteNombre : "Desconocido";
+    }
+
+    public void setPacienteNombre(String pacienteNombre) {
+        this.pacienteNombre = pacienteNombre;
     }
 }
