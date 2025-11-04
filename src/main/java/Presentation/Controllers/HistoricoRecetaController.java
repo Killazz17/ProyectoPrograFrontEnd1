@@ -1,6 +1,8 @@
 package Presentation.Controllers;
 
 import Domain.Dtos.HistoricoRecetaDto;
+import Domain.Dtos.RecetaDetalladaDto;
+import Presentation.IObserver;
 import Presentation.Observable;
 import Services.HistoricoRecetaService;
 import Utilities.EventType;
@@ -12,9 +14,14 @@ import java.util.concurrent.ExecutionException;
 public class HistoricoRecetaController extends Observable {
 
     private final HistoricoRecetaService service;
+    private String nombrePacienteSeleccionado = "";
 
     public HistoricoRecetaController(HistoricoRecetaService service) {
         this.service = service;
+    }
+
+    public void setNombrePacienteSeleccionado(String nombre) {
+        this.nombrePacienteSeleccionado = nombre != null ? nombre : "";
     }
 
     public void listarHistoricoAsync() {
@@ -27,7 +34,9 @@ public class HistoricoRecetaController extends Observable {
             @Override
             protected void done() {
                 try {
-                    notifyObservers(EventType.UPDATED, get());
+                    List<HistoricoRecetaDto> recetas = get();
+                    System.out.println("[HistoricoController] Recetas cargadas: " + recetas.size());
+                    notifyObservers(EventType.UPDATED, recetas);
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al listar histórico", e);
                 }
@@ -36,17 +45,27 @@ public class HistoricoRecetaController extends Observable {
         worker.execute();
     }
 
-    public void buscarHistoricoAsync(String filtro) {
+    // ÚNICO MÉTODO DE BÚSQUEDA
+    public void buscarHistoricoAsync(String tipo, String valor) {
         SwingWorker<List<HistoricoRecetaDto>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<HistoricoRecetaDto> doInBackground() throws Exception {
-                return service.searchByFilter(filtro);
+                System.out.println("[HistoricoController] Buscando: " + tipo + " = " + valor);
+
+                if ("id_receta".equals(tipo)) {
+                    int id = Integer.parseInt(valor);
+                    return service.buscarPorIdReceta(id);  // NUEVO MÉTODO
+                } else {
+                    return service.searchByFilter(tipo, valor);
+                }
             }
 
             @Override
             protected void done() {
                 try {
-                    notifyObservers(EventType.UPDATED, get());
+                    List<HistoricoRecetaDto> recetas = get();
+                    System.out.println("[HistoricoController] Resultados: " + recetas.size());
+                    notifyObservers(EventType.UPDATED, recetas);
                 } catch (InterruptedException | ExecutionException e) {
                     showError("Error al buscar recetas", e);
                 }
@@ -55,8 +74,39 @@ public class HistoricoRecetaController extends Observable {
         worker.execute();
     }
 
-    private void showError(String msg, Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, msg + "\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    public void obtenerDetalleAsync(int idReceta) {
+        SwingWorker<RecetaDetalladaDto, Void> worker = new SwingWorker<>() {
+            @Override
+            protected RecetaDetalladaDto doInBackground() throws Exception {
+                return service.getDetalleReceta(idReceta);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    RecetaDetalladaDto detalle = get();
+                    if (detalle != null) {
+                        detalle.setPacienteNombre(nombrePacienteSeleccionado);
+                        notifyObservers(EventType.DETAIL_LOADED, detalle);
+                    } else {
+                        showError("Receta no encontrada", null);
+                    }
+                } catch (Exception e) {
+                    showError("Error al obtener detalle", e);
+                }
+            }
+        };
+        worker.execute();
     }
+
+    private void showError(String msg, Exception e) {
+        String error = e != null ? msg + "\n" + e.getMessage() : msg;
+        SwingUtilities.invokeLater(() ->
+                JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE));
+    }
+
+    @Override
+    public void addObserver(IObserver observer) { super.addObserver(observer); }
+    @Override
+    public void notifyObservers(EventType eventType, Object data) { super.notifyObservers(eventType, data); }
 }
